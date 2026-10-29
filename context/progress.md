@@ -2,26 +2,23 @@
 
 > **Nota para el Agente**: Este es el archivo maestro de continuidad. Indica exactamente dónde quedó el estudiante para retomar sin perder contexto entre días, horas o máquinas.
 
-## 📍 Estado Actual
+## 📍 Estado Actual (Listo para retomar en la Sesión 2)
 - **Fase del Proyecto**: **Fase 1 — Nivelación Express A1–A2 + Vida Personal y Trabajo**.
-- **Diagnóstico Inicial**: Completado (**7.2 / 10**, guardado en `practica/quices/01-examen-diagnostico.md` y brechas mapeadas en `context/weaknesses-and-mistakes.md`).
-- **Módulo Activo**: **Módulo 1.1 — Estructura Mental, Presentación Impecable y Pronunciación Crítica**.
-- **Páginas Web Activas (Local y GitHub Pages)**:
-  1. `index.html`: Hub Principal.
-  2. `perfil/index.html` (`perfil/mi-presentacion.md`): **Mi Perfil y Presentación Evolutiva** (v1.0 con audio frase por frase y discurso completo).
-  3. `vocabulario/index.html` (`vocabulario.md` / `.csv`): **Banco General de Vocabulario** con selector de confianza (`🔴 Nueva / Desconocida`, `🟡 Poca confianza`, `🟢 Dominada`).
-  4. `vocabulario/verbos.html` (`verbos.md` / `.csv`): **Ventana Exclusiva de Verbos y Conjugaciones** (Presente, 3ra Persona, Gerundio `-ing`, Pasado Simple y Participio Pasado con audio individual 🔊).
-- **Próximo Paso Recomendado**: Practicar las 5 frases del Mini-Reto de la Lección 1.1 o hacer la primera **Charla Corta (Roleplay)** aplicando su presentación corregida.
+- **Último Logro Completado**: Examen Diagnóstico (7.2/10) + Lección 1.1 + Mini-Reto de 5 frases (8.5/10).
+- **🎯 Agenda Exacta para Iniciar Mañana (Sesión 2)**:
+  1. **Calentamiento Rápido (5 min)**: Repaso con audio 🔊 en `perfil/index.html` y `vocabulario/verbos.html`.
+  2. **Actividad 1 — Mini-Roleplay #1 (5–10 min)**: Simulación de llamada corta por Teams con un nuevo compañero internacional del equipo de Java para practicar en vivo tu presentación y los 4 micro-ajustes (`as a Java developer`, `near Medellín`, `enjoy walking`, `Every day I attend our...`).
+  3. **Actividad 2 — Lección 1.2**: Crear y practicar la **Estructura Maestra de la Oración en Inglés (`Subject + Verb + Object + Place + Time`) y Conectores Clave** para nunca olvidar el sujeto (`I`, `it`) y hablar sin pausas.
 
 ---
 
 ## 📊 Métricas Globales
 | Métrica | Valor Actual |
 | :--- | :--- |
-| **Módulos Completados** | Fase 0 (Diagnóstico) |
+| **Módulos Completados** | Fase 0 (Diagnóstico) + Lección 1.1 |
 | **Lecciones Creadas en `material/`** | 2 |
 | **Palabras en Vocabulario General** | 22 |
 | **Verbos con Conjugación Completa** | 15 |
-| **Versión del Perfil Evolutivo** | v1.0 (4 bloques activos) |
-| **Quices Realizados** | 1 (Examen Diagnóstico: 7.2 / 10) |
-| **Sesiones de Charla (Roleplay)** | 0 |
+| **Versión del Perfil Evolutivo** | v1.0 |
+| **Quices / Retos Realizados** | 2 (Diagnóstico: 7.2/10 → Mini-Reto 1.1: 8.5/10) |
+| **Sesiones de Charla (Roleplay)** | 0 (Programada #1 al iniciar mañana) |
