@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ventana de Verbos y Tiempos — Inglés Wilson</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface-hover: #334155;
+      --border: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-dark: #0284c7;
+      --green: #34d399;
+      --amber: #fbbf24;
+      --red: #f87171;
+      --purple: #c084fc;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 1.5rem;
+    }
+    .container { max-width: 1280px; margin: 0 auto; }
+    .topnav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .topnav a {
+      color: var(--text);
+      text-decoration: none;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 0.5rem 0.95rem;
+      border-radius: 0.5rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .topnav a.active, .topnav a:hover {
+      border-color: var(--accent);
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+    }
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+    h1 { font-size: 1.6rem; }
+    .subtitle { color: var(--muted); font-size: 0.92rem; }
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr auto auto auto;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+    @media (max-width: 820px) { .controls { grid-template-columns: 1fr; } }
+    input, select, button {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 0.6rem 0.9rem;
+      border-radius: 0.5rem;
+      font-size: 0.9rem;
+      outline: none;
+    }
+    button { cursor: pointer; font-weight: 600; }
+    button:hover { background: var(--surface-hover); }
+    .btn-primary { background: var(--accent-dark); border-color: var(--accent); }
+    .table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      overflow-x: auto;
+    }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th, td {
+      padding: 0.85rem 0.9rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+      vertical-align: top;
+    }
+    th {
+      color: var(--muted);
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .tense-box {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+    .tense-word {
+      font-weight: 700;
+      font-size: 0.98rem;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .pron { color: var(--amber); font-family: monospace; font-size: 0.8rem; }
+    .speak-mini {
+      background: transparent;
+      border: 1px solid var(--border);
+      padding: 0.1rem 0.35rem;
+      border-radius: 0.3rem;
+      font-size: 0.75rem;
+    }
+    .type-badge {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+    .type-Irregular { background: rgba(192, 132, 252, 0.15); color: var(--purple); }
+    .type-Regular { background: rgba(56, 189, 248, 0.15); color: var(--accent); }
+    .examples-list { font-size: 0.84rem; display: flex; flex-direction: column; gap: 0.3rem; }
+    .ex-tag { font-weight: 700; font-size: 0.72rem; color: var(--muted); text-transform: uppercase; }
+    .conf-select {
+      padding: 0.3rem 0.5rem;
+      font-size: 0.8rem;
+      border-radius: 0.4rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav class="topnav">
+      <a href="../index.html">🏠 Inicio (Hub)</a>
+      <a href="../perfil/index.html">👤 Mi Perfil y Presentación</a>
+      <a href="./index.html">🔤 Vocabulario General</a>
+      <a href="./verbos.html" class="active">⚡ Ventana de Verbos (Tiempos)</a>
+    </nav>
+
+    <header>
+      <div>
+        <h1>⚡ Ventana de Verbos y Conjugaciones por Tiempo</h1>
+        <p class="subtitle">Haz clic en 🔊 en cualquier tiempo verbal para escuchar cómo se pronuncia exactamente en Presente, Gerundio, Pasado o Participio.</p>
+      </div>
+      <div>
+        <button class="btn-primary" id="copyReportBtn">📋 Copiar Mi Estado de Confianza para el Agente</button>
+      </div>
+    </header>
+
+    <div class="controls" style="grid-template-columns: 1fr auto auto auto;">
+      <input type="text" id="searchInput" placeholder="Buscar verbo en inglés o español (ej. build, construir, thought, fixed)..." />
+      <select id="voiceSelect" style="max-width:220px;" title="Voz en inglés">
+        <option value="">🎙️ Cargando voz EN...</option>
+      </select>
+      <select id="typeFilter">
+        <option value="ALL">Todos (Regulares e Irregulares)</option>
+        <option value="Irregular">Solo Irregulares</option>
+        <option value="Regular">Solo Regulares</option>
+      </select>
+      <select id="confFilter">
+        <option value="ALL">Todos los niveles de confianza</option>
+        <option value="Nueva / Desconocida">🔴 Nueva / Desconocida</option>
+        <option value="Poca confianza">🟡 Poca confianza</option>
+        <option value="Dominada">🟢 Dominada</option>
+      </select>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Significado / Tipo</th>
+            <th>1. Base (Presente)<br><small>I / You / We / They</small></th>
+            <th>2. 3ra Persona<br><small>He / She / It</small></th>
+            <th>3. Continuo (-ing)<br><small>am/is/are + -ing</small></th>
+            <th>4. Pasado Simple<br><small>Yesterday I...</small></th>
+            <th>5. Participio Pasado<br><small>I have / has...</small></th>
+            <th>Ejemplos Reales en los 3 Tiempos</th>
+            <th>Mi Confianza</th>
+          </tr>
+        </thead>
+        <tbody id="verbsTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const VERBS_DATA = [
+      {
+        id: 1,
+        es: "Construir / Desarrollar",
+        type: "Irregular",
+        base: "build", pronBase: "bíld",
+        third: "builds", pronThird: "bílds",
+        ing: "building", pronIng: "bílding",
+        past: "built", pronPast: "bílt",
+        participle: "built", pronPart: "bílt",
+        exPres: "I build new features in Java.",
+        exPast: "Yesterday I built a new endpoint.",
+        exPerf: "I have built several microservices.",
+        confidence: "Poca confianza"
+      },
+      {
+        id: 2,
+        es: "Trabajar / Funcionar",
+        type: "Regular",
+        base: "work", pronBase: "uórk",
+        third: "works", pronThird: "uórks",
+        ing: "working", pronIng: "uórking",
+        past: "worked", pronPast: "uórkt (1 sílaba)",
+        participle: "worked", pronPart: "uórkt",
+        exPres: "Everything works well.",
+        exPast: "Yesterday I worked on a bug.",
+        exPerf: "I have worked as a Java dev for 4 years.",
+        confidence: "Poca confianza"
+      },
+      {
+        id: 3,
+        es: "Corregir / Arreglar",
+        type: "Regular",
+        base: "fix", pronBase: "fíks",
+        third: "fixes", pronThird: "fíkses",
+        ing: "fixing", pronIng: "fíksing",
+        past: "fixed", pronPast: "fíkst (sin E)",
+        participle: "fixed", pronPart: "fíkst",
+        exPres: "I fix bugs when necessary.",
+        exPast: "Yesterday I fixed the database issue.",
+        exPerf: "We have already fixed the problem.",
+        confidence: "Poca confianza"
+      },
+      {
+        id: 4,
+        es: "Desplegar",
+        type: "Regular",
+        base: "deploy", pronBase: "diplói",
+        third: "deploys", pronThird: "diplóis",
+        ing: "deploying", pronIng: "diplóing",
+        past: "deployed", pronPast: "diplóid",
+        participle: "deployed", pronPart: "diplóid",
+        exPres: "We deploy changes every week.",
+        exPast: "Yesterday I deployed the hotfix.",
+        exPerf: "We have deployed the new version.",
+        confidence: "Poca confianza"
+      },
+      {
+        id: 5,
+        es: "Asistir a (reuniones)",
+        type: "Regular",
+        base: "attend", pronBase: "aténd",
+        third: "attends", pronThird: "aténds",
+        ing: "attending", pronIng: "aténding",
+        past: "attended", pronPast: "aténded",
+        participle: "attended", pronPart: "aténded",
+        exPres: "I attend our daily meetings.",
+        exPast: "Yesterday I attended the architecture call.",
+        exPerf: "I have attended all the meetings this week.",
+        confidence: "Nueva / Desconocida"
+      },
+      {
+        id: 6,
+        es: "Encontrar / Hallar",
+        type: "Irregular",
+        base: "find", pronBase: "fáind",
+        third: "finds", pronThird: "fáinds",
+        ing: "finding", pronIng: "fáinding",
+        past: "found", pronPast: "fáund",
+        participle: "found", pronPart: "fáund",
+        exPres: "If we find the bug today, we will release tomorrow.",
+        exPast: "Yesterday I found the cause of the error.",
+        exPerf: "We have found a better solution.",
+        confidence: "Poca confianza"
+      },
+      {
+        id: 7,
+        es: "Pensar / Creer",
+        type: "Irregular",
+        base: "think", pronBase: "zínk",
+        third: "thinks", pronThird: "zínks",
+        ing: "thinking", pronIng: "zínking",
+        past: "thought", pronPast: "zót",
+        participle: "thought", pronPart: "zót",
+        exPres: "Some people think I'm rude at first.",
+        exPast: "I thought the service was down.",
+        exPerf: "I have thought about learning Japanese.",
+        confidence: "Poca confianza"
+      },
+      {
+        id: 8,
+        es: "Reunirse / Conocer",
+        type: "Irregular",
+        base: "meet", pronBase: "mít",
+        third: "meets", pronThird: "míts",
+        ing: "meeting", pronIng: "míting",
+        past: "met", pronPast: "mét",
+        participle: "met", pronPart: "mét",
+        exPres: "I meet with my teammates every day.",
+        exPast: "We met this morning to check the sprint.",
+        exPerf: "Have you met the new developer?",
+        confidence: "Poca confianza"
+      },
+      {
+        id: 9,
+        es: "Mantener",
+        type: "Regular",
+        base: "maintain", pronBase: "meintéin",
+        third: "maintains", pronThird: "meintéins",
+        ing: "maintaining", pronIng: "meintéining",
+        past: "maintained", pronPast: "meintéind",
+        participle: "maintained", pronPart: "meintéind",
+        exPres: "Usually I maintain the legacy backend.",
+        exPast: "We maintained that system for years.",
+        exPerf: "I have maintained this repository.",
+        confidence: "Poca confianza"
+      },
+      {
+        id: 10,
+        es: "Disfrutar (sin 'of')",
+        type: "Regular",
+        base: "enjoy", pronBase: "enyói",
+        third: "enjoys", pronThird: "enyóis",
+        ing: "enjoying", pronIng: "enyóing",
+        past: "enjoyed", pronPast: "enyóid",
+        participle: "enjoyed", pronPart: "enyóid",
+        exPres: "I enjoy walking my dogs.",
+        exPast: "I really enjoyed my vacation.",
+        exPerf: "I have enjoyed living in this town.",
+        confidence: "Poca confianza"
+      },
+      {
+        id: 11,
+        es: "Terminar (+ verbo -ing)",
+        type: "Regular",
+        base: "finish", pronBase: "fínish",
+        third: "finishes", pronThird: "fínishes",
+        ing: "finishing", pronIng: "fínishing",
+        past: "finished", pronPast: "fínisht",
+        participle: "finished", pronPart: "fínisht",
+        exPres: "I want to finish building my house.",
+        exPast: "Yesterday I finished the code review.",
+        exPerf: "I have just finished my tasks.",
+        confidence: "Poca confianza"
+      },
+      {
+        id: 12,
+        es: "Montar (bici / caballo)",
+        type: "Irregular",
+        base: "ride", pronBase: "ráid",
+        third: "rides", pronThird: "ráids",
+        ing: "riding", pronIng: "ráiding",
+        past: "rode", pronPast: "róud",
+        participle: "ridden", pronPart: "ríden",
+        exPres: "I love riding my bike.",
+        exPast: "Last Sunday I rode my bike in the mountains.",
+        exPerf: "I have ridden this trail many times.",
+        confidence: "Poca confianza"
+      },
+      {
+        id: 13,
+        es: "Correr / Ejecutar",
+        type: "Irregular",
+        base: "run", pronBase: "rán",
+        third: "runs", pronThird: "ráns",
+        ing: "running", pronIng: "ráning",
+        past: "ran", pronPast: "rán (a abierta)",
+        participle: "run", pronPart: "rán",
+        exPres: "Everything is running well.",
+        exPast: "I ran the unit tests locally.",
+        exPerf: "Have you run the migration script?",
+        confidence: "Poca confianza"
+      },
+      {
+        id: 14,
+        es: "Tomar / Llevar / Cuidar",
+        type: "Irregular",
+        base: "take", pronBase: "téik",
+        third: "takes", pronThird: "téiks",
+        ing: "taking", pronIng: "téiking",
+        past: "took", pronPast: "túk",
+        participle: "taken", pronPart: "téiken",
+        exPres: "I take care of animals and plants.",
+        exPast: "It took me two hours to debug.",
+        exPerf: "I have taken notes of the lesson.",
+        confidence: "Poca confianza"
+      },
+      {
+        id: 15,
+        es: "Aprender",
+        type: "Regular",
+        base: "learn", pronBase: "lérn",
+        third: "learns", pronThird: "lérns",
+        ing: "learning", pronIng: "lérning",
+        past: "learned", pronPast: "lérnd",
+        participle: "learned", pronPart: "lérnd",
+        exPres: "I keep learning about AI and cloud.",
+        exPast: "I learned a lot from the diagnostic.",
+        exPerf: "I have learned new words today.",
+        confidence: "Dominada"
+      }
+    ];
+
+    const savedConf = JSON.parse(localStorage.getItem('orus_verb_conf') || '{}');
+    VERBS_DATA.forEach(v => {
+      if (savedConf[v.id]) v.confidence = savedConf[v.id];
+    });
+
+    const voiceSelect = document.getElementById('voiceSelect');
+    let englishVoices = [];
+    let currentAudio = null;
+
+    function scoreVoice(v) {
+      let s = 0;
+      const name = v.name.toLowerCase();
+      const lang = (v.lang || '').toLowerCase();
+      if (lang.startsWith('en-us') || lang.startsWith('en_us')) s += 50;
+      else if (lang.startsWith('en-gb') || lang.startsWith('en_gb')) s += 40;
+      else if (lang.startsWith('en')) s += 25;
+      if (name.includes('natural') || name.includes('online')) s += 40;
+      if (name.includes('google us english') || name.includes('aria') || name.includes('jenny') || name.includes('guy')) s += 35;
+      if (name.includes('zira') || name.includes('david') || name.includes('mark')) s += 15;
+      return s;
+    }
+
+    function loadEnglishVoices() {
+      if (!('speechSynthesis' in window)) return;
+      const all = window.speechSynthesis.getVoices() || [];
+      englishVoices = all
+        .filter(v => /^en([-_]|$)/i.test(v.lang) || /english/i.test(v.name))
+        .sort((a, b) => scoreVoice(b) - scoreVoice(a));
+
+      const savedVoiceURI = localStorage.getItem('orus_en_voice_uri');
+      if (englishVoices.length > 0) {
+        voiceSelect.innerHTML = englishVoices.map((v, i) => `
+          <option value="${i}" ${v.voiceURI === savedVoiceURI ? 'selected' : ''}>
+            🎙️ ${v.name} (${v.lang})
+          </option>
+        `).join('');
+      } else if (all.length > 0) {
+        voiceSelect.innerHTML = `<option value="-1">⚠️ Sin voz EN local (Audio online)</option>`;
+      }
+    }
+
+    if ('speechSynthesis' in window) {
+      loadEnglishVoices();
+      window.speechSynthesis.onvoiceschanged = loadEnglishVoices;
+    }
+
+    voiceSelect.addEventListener('change', () => {
+      const v = englishVoices[parseInt(voiceSelect.value, 10)];
+      if (v) localStorage.setItem('orus_en_voice_uri', v.voiceURI);
+    });
+
+    function speak(text) {
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+      }
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        if (englishVoices.length === 0) loadEnglishVoices();
+        const idx = parseInt(voiceSelect.value, 10);
+        const chosen = (!isNaN(idx) && englishVoices[idx]) ? englishVoices[idx] : englishVoices[0];
+
+        if (chosen) {
+          const u = new SpeechSynthesisUtterance(text);
+          u.voice = chosen;
+          u.lang = chosen.lang || 'en-US';
+          u.rate = 0.88;
+          window.speechSynthesis.speak(u);
+          return;
+        }
+      }
+      const url = 'https://translate.googleapis.com/translate_tts?ie=UTF-8&client=tw-ob&tl=en&q=' + encodeURIComponent(text);
+      currentAudio = new Audio(url);
+      currentAudio.playbackRate = 0.9;
+      currentAudio.play().catch(() => {
+        alert('Tu navegador no tiene voces en inglés activas. Prueba abrir en Microsoft Edge o Google Chrome, o instala el paquete de voz "Inglés (Estados Unidos)" en Windows.');
+      });
+    }
+
+    function updateConfidence(id, value) {
+      const verb = VERBS_DATA.find(v => v.id === id);
+      if (verb) {
+        verb.confidence = value;
+        savedConf[id] = value;
+        localStorage.setItem('orus_verb_conf', JSON.stringify(savedConf));
+        renderVerbs();
+      }
+    }
+
+    const searchInput = document.getElementById('searchInput');
+    const typeFilter = document.getElementById('typeFilter');
+    const confFilter = document.getElementById('confFilter');
+    const tbody = document.getElementById('verbsTableBody');
+
+    function renderVerbs() {
+      const q = searchInput.value.toLowerCase().trim();
+      const t = typeFilter.value;
+      const c = confFilter.value;
+
+      const list = VERBS_DATA.filter(v => {
+        const matchQ = !q ||
+          v.es.toLowerCase().includes(q) ||
+          v.base.toLowerCase().includes(q) ||
+          v.past.toLowerCase().includes(q) ||
+          v.participle.toLowerCase().includes(q);
+        const matchT = t === 'ALL' || v.type === t;
+        const matchC = c === 'ALL' || v.confidence === c;
+        return matchQ && matchT && matchC;
+      });
+
+      tbody.innerHTML = list.map(v => `
+        <tr>
+          <td>
+            <div style="font-weight:700;margin-bottom:0.3rem;">${v.es}</div>
+            <span class="type-badge type-${v.type}">${v.type}</span>
+          </td>
+          <td>
+            <div class="tense-box">
+              <span class="tense-word">${v.base} <button class="speak-mini" onclick="speak('${v.base}')">🔊</button></span>
+              <span class="pron">(${v.pronBase})</span>
+            </div>
+          </td>
+          <td>
+            <div class="tense-box">
+              <span class="tense-word">${v.third} <button class="speak-mini" onclick="speak('${v.third}')">🔊</button></span>
+              <span class="pron">(${v.pronThird})</span>
+            </div>
+          </td>
+          <td>
+            <div class="tense-box">
+              <span class="tense-word">${v.ing} <button class="speak-mini" onclick="speak('${v.ing}')">🔊</button></span>
+              <span class="pron">(${v.pronIng})</span>
+            </div>
+          </td>
+          <td>
+            <div class="tense-box">
+              <span class="tense-word" style="color:#fbbf24">${v.past} <button class="speak-mini" onclick="speak('${v.past}')">🔊</button></span>
+              <span class="pron">(${v.pronPast})</span>
+            </div>
+          </td>
+          <td>
+            <div class="tense-box">
+              <span class="tense-word" style="color:#34d399">${v.participle} <button class="speak-mini" onclick="speak('have ${v.participle}')">🔊</button></span>
+              <span class="pron">(${v.pronPart})</span>
+            </div>
+          </td>
+          <td>
+            <div class="examples-list">
+              <div><span class="ex-tag">Pres:</span> ${v.exPres} <button class="speak-mini" onclick="speak('${v.exPres.replace(/'/g, "\\'")}')">🔊</button></div>
+              <div><span class="ex-tag">Pas:</span> ${v.exPast} <button class="speak-mini" onclick="speak('${v.exPast.replace(/'/g, "\\'")}')">🔊</button></div>
+              <div><span class="ex-tag">Perf:</span> ${v.exPerf} <button class="speak-mini" onclick="speak('${v.exPerf.replace(/'/g, "\\'")}')">🔊</button></div>
+            </div>
+          </td>
+          <td>
+            <select class="conf-select" onchange="updateConfidence(${v.id}, this.value)">
+              <option value="Nueva / Desconocida" ${v.confidence === 'Nueva / Desconocida' ? 'selected' : ''}>🔴 Nueva / Desconocida</option>
+              <option value="Poca confianza" ${v.confidence === 'Poca confianza' ? 'selected' : ''}>🟡 Poca confianza</option>
+              <option value="Dominada" ${v.confidence === 'Dominada' ? 'selected' : ''}>🟢 Dominada</option>
+            </select>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    searchInput.addEventListener('input', renderVerbs);
+    typeFilter.addEventListener('change', renderVerbs);
+    confFilter.addEventListener('change', renderVerbs);
+
+    document.getElementById('copyReportBtn').addEventListener('click', () => {
+      const unknown = VERBS_DATA.filter(v => v.confidence === 'Nueva / Desconocida').map(v => v.base);
+      const lowConf = VERBS_DATA.filter(v => v.confidence === 'Poca confianza').map(v => v.base);
+      const mastered = VERBS_DATA.filter(v => v.confidence === 'Dominada').map(v => v.base);
+      const report = `Reporte de Confianza en Verbos:\n- 🔴 Nuevos/Desconocidos: ${unknown.join(', ') || 'Ninguno'}\n- 🟡 Poca confianza: ${lowConf.join(', ') || 'Ninguno'}\n- 🟢 Dominados: ${mastered.join(', ') || 'Ninguno'}`;
+      navigator.clipboard.writeText(report);
+      alert('¡Reporte copiado! Pégalo en el chat con el agente para sincronizar tus archivos.');
+    });
+
+    renderVerbs();
+  </script>
+</body>
+</html>

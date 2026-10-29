@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mi Perfil y Presentación Evolutiva — Wilson</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface-hover: #334155;
+      --border: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-dark: #0284c7;
+      --green: #34d399;
+      --amber: #fbbf24;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 1.5rem;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .topnav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .topnav a {
+      color: var(--text);
+      text-decoration: none;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 0.5rem 0.95rem;
+      border-radius: 0.5rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .topnav a.active, .topnav a:hover {
+      border-color: var(--accent);
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+    }
+    header {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0.9rem;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+    h1 { font-size: 1.6rem; margin-bottom: 0.25rem; }
+    .subtitle { color: var(--muted); font-size: 0.92rem; }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      background: var(--surface);
+      padding: 0.9rem 1.1rem;
+      border-radius: 0.75rem;
+      border: 1px solid var(--border);
+    }
+    button, select {
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 0.55rem 0.9rem;
+      border-radius: 0.5rem;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:hover { background: var(--surface-hover); }
+    .btn-primary {
+      background: var(--accent-dark);
+      border-color: var(--accent);
+    }
+    .section-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0.85rem;
+      padding: 1.4rem;
+      margin-bottom: 1.25rem;
+    }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-title { font-size: 1.15rem; color: var(--accent); font-weight: 700; }
+    .sentence-row {
+      padding: 0.85rem;
+      border-radius: 0.6rem;
+      background: rgba(15, 23, 42, 0.55);
+      margin-bottom: 0.75rem;
+      border: 1px solid rgba(51, 65, 85, 0.6);
+    }
+    .en-line {
+      font-size: 1.08rem;
+      font-weight: 600;
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .pron-line {
+      color: var(--amber);
+      font-family: monospace;
+      font-size: 0.92rem;
+      margin-top: 0.35rem;
+    }
+    .es-line {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-top: 0.25rem;
+    }
+    .hide-pron .pron-line { display: none; }
+    .hide-es .es-line { display: none; }
+    .full-script-box {
+      background: #090e1a;
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      font-size: 1.02rem;
+      line-height: 1.75;
+      white-space: pre-line;
+      margin-top: 0.75rem;
+    }
+    .roadmap-box {
+      background: rgba(56, 189, 248, 0.06);
+      border: 1px dashed var(--accent);
+      border-radius: 0.85rem;
+      padding: 1.25rem;
+      margin-top: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav class="topnav">
+      <a href="../index.html">🏠 Inicio (Hub)</a>
+      <a href="./index.html" class="active">👤 Mi Perfil y Presentación</a>
+      <a href="../vocabulario/index.html">🔤 Vocabulario General</a>
+      <a href="../vocabulario/verbos.html">⚡ Ventana de Verbos (Tiempos)</a>
+    </nav>
+
+    <header>
+      <div>
+        <h1>👤 Mi Perfil y Presentación Evolutiva — Wilson</h1>
+        <p class="subtitle">Versión 1.0 (Base B1) • Practica oración por oración o el discurso completo. Este perfil crecerá con cada módulo.</p>
+      </div>
+      <div>
+        <button class="btn-primary" id="playAllBtn">▶️ Escuchar Presentación Completa</button>
+        <button id="stopSpeechBtn">⏹️ Detener</button>
+      </div>
+    </header>
+
+    <div class="toolbar">
+      <span>🎙️ Voz en Inglés:</span>
+      <select id="voiceSelect" style="max-width:260px;">
+        <option value="">Cargando voces en inglés...</option>
+      </select>
+      <span>🎚️ Velocidad:</span>
+      <select id="speedSelect">
+        <option value="0.75">0.75x (Lento)</option>
+        <option value="0.88" selected>0.88x (Natural claro)</option>
+        <option value="1.0">1.0x (Normal)</option>
+      </select>
+      <button id="togglePronBtn">👁️ Ocultar/Mostrar Pronunciación</button>
+      <button id="toggleEsBtn">👁️ Ocultar/Mostrar Español</button>
+      <button id="copyFullBtn">📋 Copiar Texto</button>
+    </div>
+
+    <div id="sectionsContainer"></div>
+
+    <div class="section-card">
+      <div class="section-header">
+        <span class="section-title">📝 Texto Completo de Corrido (Listo para Copiar y Leer)</span>
+      </div>
+      <div class="full-script-box" id="fullScriptText"></div>
+    </div>
+
+    <div class="roadmap-box">
+      <h3 style="color:var(--accent);margin-bottom:0.5rem;">🚀 Próximos Bloques que Agregaremos a tu Perfil</h3>
+      <ul style="color:var(--muted);padding-left:1.2rem;font-size:0.92rem;">
+        <li><strong>Versión 1.2 (Pasado y Experiencia):</strong> Cómo contar tus 4+ años de experiencia, proyectos clave y cómo empezaste en ingeniería.</li>
+        <li><strong>Versión 1.3 (Stack Técnico y Arquitectura):</strong> Cómo explicar los microservicios, bases de datos, colas y agentes con los que trabajas.</li>
+        <li><strong>Versión 2.0 (B2 Operativo):</strong> Historias de resolución de bugs críticos, liderazgo técnico y visión profesional.</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    const PROFILE_SECTIONS = [
+      {
+        title: "1. Quién soy y dónde vivo (Who I Am & Where I Live)",
+        sentences: [
+          {
+            en: "Hi, I'm Wilson. I'm 32 years old, and I'm a systems engineer.",
+            pron: "Jái, áim Uílson. Áim zéri-tú yírs óuld, and áim a sístems enyinír.",
+            es: "Hola, soy Wilson. Tengo 32 años y soy ingeniero de sistemas."
+          },
+          {
+            en: "I live in a cold, green, and beautiful town near Medellín.",
+            pron: "Ái lív in a kóuld, grín, and biúreful táun nír Medellín.",
+            es: "Vivo en un pueblo frío, verde y hermoso cerca de Medellín."
+          },
+          {
+            en: "Its landscapes are wonderful, and I love living surrounded by nature.",
+            pron: "Its lándskeips ar uónderful, and ái lóv líving saráunded bái néichur.",
+            es: "Sus paisajes son maravillosos y me encanta vivir rodeado de naturaleza."
+          }
+        ]
+      },
+      {
+        title: "2. Mis hobbies y mi personalidad (Hobbies & Personality)",
+        sentences: [
+          {
+            en: "In my free time, I love riding my bike and walking my dogs.",
+            pron: "In mái frí táim, ái lóv ráiding mái báik and uóking mái dógs.",
+            es: "En mi tiempo libre, me encanta montar en bici y pasear a mis perros."
+          },
+          {
+            en: "I really enjoy spending time with them and taking care of animals and plants.",
+            pron: "Ái ríli enyói spénding táim uíz dem and téiking kér of ánimals and plánts.",
+            es: "Realmente disfruto pasar tiempo con ellos y cuidar animales y plantas."
+          },
+          {
+            en: "I'm a serious person. At first, some people think I'm rude, but I'm actually quiet, kind, respectful, and very committed.",
+            pron: "Áim a sírios pérson. At férst, sóm pípol zínk áim rúd, bat áim ákchuali kuáiet, káind, rispéktful, and véri komíted.",
+            es: "Soy una persona seria. Al principio algunos piensan que soy bravo/cortante, pero en realidad soy callado, amable, respetuoso y muy comprometido."
+          }
+        ]
+      },
+      {
+        title: "3. Mis ambiciones y metas (My Ambitions & Goals)",
+        sentences: [
+          {
+            en: "My main goal is to become a better engineer with more knowledge to offer.",
+            pron: "Mái méin góul is tu bikóm a bérer enyinír uíz mór nólech tu ófer.",
+            es: "Mi meta principal es convertirme en un mejor ingeniero con más conocimiento para ofrecer."
+          },
+          {
+            en: "I want to speak fluent English and Portuguese, and if possible, learn Italian or Japanese in the future.",
+            pron: "Ái uánt tu spík flúent Ínglish and Pórchuguis, and if pósibol, lérn Itálian or Yapanís in de fiúchur.",
+            es: "Quiero hablar inglés y portugués fluido y, si es posible, aprender italiano o japonés en el futuro."
+          },
+          {
+            en: "I also want to increase my salary and finish building my house.",
+            pron: "Ái ólso uánt tu inkrís mái sálari and fínish bílding mái jáus.",
+            es: "También quiero aumentar mi salario y terminar de construir mi casa."
+          }
+        ]
+      },
+      {
+        title: "4. Mi día a día como Java Developer (My Daily Routine at Work)",
+        sentences: [
+          {
+            en: "In my daily routine as a Java developer, I attend our daily meetings and meet with my teammates.",
+            pron: "In mái déili rutín as a Yáva divéloper, ái aténd áuer déili mítings and mít uíz mái tímeits.",
+            es: "En mi rutina diaria como desarrollador Java, asisto a nuestras reuniones diarias y me reúno con mis compañeros de equipo."
+          },
+          {
+            en: "I check the dashboards and chats to make sure everything is working well and running smoothly.",
+            pron: "Ái chék de dáshbords and cháts tu méik shúr évrizing is uórking uél and ráning smúzli.",
+            es: "Reviso los tableros y chats para asegurarme de que todo esté funcionando bien y sin contratiempos."
+          },
+          {
+            en: "I build new features, fix bugs when necessary, and keep learning about AI, agents, Java, and cloud technologies to stay competitive in the job market.",
+            pron: "Ái bíld niú fíchurs, fíks bágs uén néseseri, and kíp lérning abáut Éi-Ái, éiyents, Yáva, and kláud teknóloyis tu stéi kompétitiv in de yób márket.",
+            es: "Construyo nuevas funcionalidades, corrijo bugs cuando es necesario y sigo aprendiendo sobre IA, agentes, Java y tecnologías cloud para mantenerme competitivo en el mercado laboral."
+          }
+        ]
+      }
+    ];
+
+    const speedSelect = document.getElementById('speedSelect');
+    const voiceSelect = document.getElementById('voiceSelect');
+    let englishVoices = [];
+
+    function scoreVoice(v) {
+      let s = 0;
+      const name = v.name.toLowerCase();
+      const lang = (v.lang || '').toLowerCase();
+      if (lang.startsWith('en-us') || lang.startsWith('en_us')) s += 50;
+      else if (lang.startsWith('en-gb') || lang.startsWith('en_gb')) s += 40;
+      else if (lang.startsWith('en')) s += 25;
+      if (name.includes('natural') || name.includes('online')) s += 40;
+      if (name.includes('google us english') || name.includes('aria') || name.includes('jenny') || name.includes('guy')) s += 35;
+      if (name.includes('zira') || name.includes('david') || name.includes('mark')) s += 15;
+      return s;
+    }
+
+    function loadEnglishVoices() {
+      if (!('speechSynthesis' in window)) return;
+      const all = window.speechSynthesis.getVoices() || [];
+      englishVoices = all
+        .filter(v => /^en([-_]|$)/i.test(v.lang) || /english/i.test(v.name))
+        .sort((a, b) => scoreVoice(b) - scoreVoice(a));
+
+      const savedVoiceURI = localStorage.getItem('orus_en_voice_uri');
+      if (englishVoices.length > 0) {
+        voiceSelect.innerHTML = englishVoices.map((v, i) => `
+          <option value="${i}" ${v.voiceURI === savedVoiceURI ? 'selected' : ''}>
+            ${v.name} (${v.lang})
+          </option>
+        `).join('');
+      } else if (all.length > 0) {
+        voiceSelect.innerHTML = `<option value="-1">⚠️ Sin voz EN instalada en el navegador (Usando audio online)</option>`;
+      }
+    }
+
+    if ('speechSynthesis' in window) {
+      loadEnglishVoices();
+      window.speechSynthesis.onvoiceschanged = loadEnglishVoices;
+    }
+
+    voiceSelect.addEventListener('change', () => {
+      const v = englishVoices[parseInt(voiceSelect.value, 10)];
+      if (v) localStorage.setItem('orus_en_voice_uri', v.voiceURI);
+    });
+
+    let currentAudio = null;
+    function speak(text) {
+      const rate = parseFloat(speedSelect.value || '0.88');
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+      }
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        if (englishVoices.length === 0) loadEnglishVoices();
+        const idx = parseInt(voiceSelect.value, 10);
+        const chosen = (!isNaN(idx) && englishVoices[idx]) ? englishVoices[idx] : englishVoices[0];
+
+        if (chosen) {
+          const u = new SpeechSynthesisUtterance(text);
+          u.voice = chosen;
+          u.lang = chosen.lang || 'en-US';
+          u.rate = rate;
+          window.speechSynthesis.speak(u);
+          return;
+        }
+      }
+      // Fallback online English TTS if the browser has no English voice installed
+      const url = 'https://translate.googleapis.com/translate_tts?ie=UTF-8&client=tw-ob&tl=en&q=' + encodeURIComponent(text);
+      currentAudio = new Audio(url);
+      currentAudio.playbackRate = rate;
+      currentAudio.play().catch(() => {
+        alert('Tu navegador no tiene voces en inglés activas. Prueba abrir la página en Microsoft Edge o Google Chrome, o instala el paquete de voz "Inglés (Estados Unidos)" en Windows.');
+      });
+    }
+
+    const container = document.getElementById('sectionsContainer');
+    container.innerHTML = PROFILE_SECTIONS.map((sec, sIdx) => {
+      const secText = sec.sentences.map(s => s.en).join(' ');
+      return `
+        <div class="section-card">
+          <div class="section-header">
+            <span class="section-title">${sec.title}</span>
+            <button onclick="speak('${secText.replace(/'/g, "\\'")}')">🔊 Escuchar Bloque</button>
+          </div>
+          ${sec.sentences.map(item => `
+            <div class="sentence-row">
+              <div class="en-line">
+                <span>${item.en}</span>
+                <button onclick="speak('${item.en.replace(/'/g, "\\'")}')">🔊</button>
+              </div>
+              <div class="pron-line">🗣️ ${item.pron}</div>
+              <div class="es-line">🇪🇸 ${item.es}</div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }).join('');
+
+    const fullText = PROFILE_SECTIONS.map(s => s.sentences.map(x => x.en).join(' ')).join('\n\n');
+    document.getElementById('fullScriptText').textContent = fullText;
+
+    document.getElementById('playAllBtn').addEventListener('click', () => speak(fullText));
+    document.getElementById('stopSpeechBtn').addEventListener('click', () => window.speechSynthesis.cancel());
+    document.getElementById('togglePronBtn').addEventListener('click', () => document.body.classList.toggle('hide-pron'));
+    document.getElementById('toggleEsBtn').addEventListener('click', () => document.body.classList.toggle('hide-es'));
+    document.getElementById('copyFullBtn').addEventListener('click', () => {
+      navigator.clipboard.writeText(fullText);
+      alert('¡Presentación completa copiada al portapapeles!');
+    });
+  </script>
+</body>
+</html>

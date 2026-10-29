@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mi Vocabulario de Inglés — Centro Interactivo</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface-hover: #334155;
+      --border: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-dark: #0284c7;
+      --red: #f87171;
+      --amber: #fbbf24;
+      --green: #34d399;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 1.5rem;
+    }
+    .container { max-width: 1250px; margin: 0 auto; }
+    .topnav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .topnav a {
+      color: var(--text);
+      text-decoration: none;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 0.5rem 0.95rem;
+      border-radius: 0.5rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .topnav a.active, .topnav a:hover {
+      border-color: var(--accent);
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+    }
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+    h1 { font-size: 1.6rem; font-weight: 700; }
+    .subtitle { color: var(--muted); font-size: 0.92rem; }
+    .stats { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+    .stat-pill {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 0.4rem 0.85rem;
+      border-radius: 999px;
+      font-size: 0.83rem;
+      font-weight: 600;
+    }
+    .feedback-bar {
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 0.75rem;
+      padding: 0.9rem 1.1rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr auto auto auto;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+    @media (max-width: 768px) { .controls { grid-template-columns: 1fr; } }
+    input, select, button {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 0.6rem 0.9rem;
+      border-radius: 0.5rem;
+      font-size: 0.9rem;
+      outline: none;
+    }
+    input:focus, select:focus { border-color: var(--accent); }
+    button { cursor: pointer; font-weight: 600; }
+    button:hover { background: var(--surface-hover); }
+    .btn-primary { background: var(--accent-dark); border-color: var(--accent); }
+    .table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      overflow-x: auto;
+    }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th, td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+    }
+    th {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .term-cell {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .speak-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      padding: 0.15rem 0.4rem;
+      border-radius: 0.35rem;
+      font-size: 0.78rem;
+    }
+    .pron { color: var(--amber); font-family: monospace; font-size: 0.85rem; }
+    .flashcard-panel {
+      display: none;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0.85rem;
+      padding: 2rem;
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    .flashcard-panel.active { display: block; }
+    .fc-word { font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 0.4rem; }
+    .fc-pron { color: var(--amber); margin-bottom: 1rem; }
+    .fc-answer {
+      display: none;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+    .fc-answer.revealed { display: block; }
+    .fc-actions { margin-top: 1.25rem; display: flex; justify-content: center; gap: 0.75rem; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav class="topnav">
+      <a href="../index.html">🏠 Inicio (Hub)</a>
+      <a href="../perfil/index.html">👤 Mi Perfil y Presentación</a>
+      <a href="./index.html" class="active">🔤 Vocabulario General</a>
+      <a href="./verbos.html">⚡ Ventana de Verbos (Tiempos)</a>
+    </nav>
+
+    <header>
+      <div>
+        <h1>📚 Mi Banco de Vocabulario — Inglés</h1>
+        <p class="subtitle">Marca tu nivel de confianza en cada palabra o anota palabras desconocidas para enviárselas al agente.</p>
+      </div>
+      <div class="stats" id="statsContainer"></div>
+    </header>
+
+    <div class="feedback-bar">
+      <div style="flex:1;min-width:260px;">
+        <strong>❓ ¿Viste una palabra desconocida o que no sabes cómo usar?</strong>
+        <div style="margin-top:0.4rem;display:flex;gap:0.5rem;">
+          <input type="text" id="unknownWordsInput" style="flex:1;" placeholder="Escribe aquí palabras que quieras que el agente explique o agregue (ej. smoothly, standup, legacy)..." />
+        </div>
+      </div>
+      <div>
+        <button class="btn-primary" id="copyReportBtn">📋 Copiar Reporte para el Agente</button>
+      </div>
+    </div>
+
+    <div class="controls" style="grid-template-columns: 1fr auto auto auto auto;">
+      <input type="text" id="searchInput" placeholder="Buscar en inglés, español o ejemplo..." />
+      <select id="voiceSelect" style="max-width:220px;" title="Voz en inglés">
+        <option value="">🎙️ Cargando voz EN...</option>
+      </select>
+      <select id="categoryFilter">
+        <option value="ALL">Todas las categorías</option>
+      </select>
+      <select id="statusFilter">
+        <option value="ALL">Todos los niveles de confianza</option>
+        <option value="Nueva / Desconocida">🔴 Nueva / Desconocida</option>
+        <option value="Poca confianza">🟡 Poca confianza</option>
+        <option value="Dominada">🟢 Dominada</option>
+      </select>
+      <button class="btn-primary" id="toggleFlashcardBtn">🎴 Modo Flashcards</button>
+    </div>
+
+    <div class="flashcard-panel" id="flashcardPanel">
+      <div class="fc-word" id="fcWord"></div>
+      <div class="fc-pron" id="fcPron"></div>
+      <div class="fc-answer" id="fcAnswer">
+        <p style="font-size:1.25rem;font-weight:600;margin-bottom:0.5rem;" id="fcTranslation"></p>
+        <p style="color:#38bdf8;" id="fcExampleEn"></p>
+        <p style="color:#94a3b8;font-size:0.9rem;" id="fcExampleEs"></p>
+      </div>
+      <div class="fc-actions">
+        <button id="fcSpeakBtn">🔊 Escuchar</button>
+        <button class="btn-primary" id="fcRevealBtn">👁️ Mostrar Significado</button>
+        <button id="fcNextBtn">⏭️ Siguiente Tarjeta</button>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Término</th>
+            <th>Pronunciación</th>
+            <th>Significado y Contexto</th>
+            <th>Categoría</th>
+            <th>Ejemplo Práctico</th>
+            <th>Mi Confianza</th>
+          </tr>
+        </thead>
+        <tbody id="vocabTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const VOCABULARY_DATA = [
+      {
+        id: 1,
+        term: "Achieve",
+        pronunciation: "/əˈtʃiːv/ (achív)",
+        translation: "Lograr / Alcanzar (una meta)",
+        category: "Verbo",
+        level: "A2",
+        exampleEn: "You can achieve your goals with daily practice.",
+        exampleEs: "Puedes lograr tus metas con práctica diaria.",
+        status: "Poca confianza"
+      },
+      {
+        id: 2,
+        term: "Schedule",
+        pronunciation: "/ˈskedʒ.uːl/ (skéchul)",
+        translation: "Horario / Agenda / Programar",
+        category: "Sustantivo",
+        level: "A2",
+        exampleEn: "Let's check my schedule for tomorrow.",
+        exampleEs: "Revisemos mi horario para mañana.",
+        status: "Poca confianza"
+      },
+      {
+        id: 3,
+        term: "Figure out",
+        pronunciation: "/ˈfɪɡ.jər aʊt/ (fíguer áut)",
+        translation: "Resolver / Entender / Descifrar cómo funciona algo",
+        category: "Phrasal Verb",
+        level: "B1",
+        exampleEn: "I need to figure out how this system works.",
+        exampleEs: "Necesito entender cómo funciona este sistema.",
+        status: "Poca confianza"
+      },
+      {
+        id: 4,
+        term: "Accurate",
+        pronunciation: "/ˈæk.jɚ.ət/ (ákiuret)",
+        translation: "Preciso / Exacto",
+        category: "Adjetivo",
+        level: "B1",
+        exampleEn: "Your translation is very accurate.",
+        exampleEs: "Tu traducción es muy precisa.",
+        status: "Poca confianza"
+      },
+      {
+        id: 5,
+        term: "By the way",
+        pronunciation: "/baɪ ðə weɪ/ (bái de uéi)",
+        translation: "Por cierto / A propósito",
+        category: "Idiom / Expresión",
+        level: "A2",
+        exampleEn: "By the way, what time is the meeting?",
+        exampleEs: "Por cierto, ¿a qué hora es la reunión?",
+        status: "Poca confianza"
+      },
+      {
+        id: 6,
+        term: "Attend",
+        pronunciation: "/əˈtend/ (aténd)",
+        translation: "Asistir a (reunión/evento — nunca lleva 'to')",
+        category: "Verbo",
+        level: "A2",
+        exampleEn: "I attend our daily meetings every morning.",
+        exampleEs: "Asisto a nuestras reuniones diarias todas las mañanas.",
+        status: "Nueva / Desconocida"
+      },
+      {
+        id: 7,
+        term: "Actually",
+        pronunciation: "/ˈæk.tʃu.ə.li/ (ákchuali)",
+        translation: "En realidad / De hecho (NO es 'actualmente')",
+        category: "Conector",
+        level: "A2",
+        exampleEn: "Some people think I'm rude, but I'm actually quiet.",
+        exampleEs: "Algunos piensan que soy bravo, pero en realidad soy callado.",
+        status: "Poca confianza"
+      },
+      {
+        id: 8,
+        term: "Quiet",
+        pronunciation: "/ˈkwaɪ.ət/ (kuáiet)",
+        translation: "Callado / Tranquilo (2 sílabas)",
+        category: "Adjetivo",
+        level: "A1",
+        exampleEn: "I am a quiet and respectful person.",
+        exampleEs: "Soy una persona callada y respetuosa.",
+        status: "Poca confianza"
+      },
+      {
+        id: 9,
+        term: "Quite",
+        pronunciation: "/kwaɪt/ (kuáit)",
+        translation: "Bastante (1 sílaba)",
+        category: "Conector",
+        level: "A2",
+        exampleEn: "This microservice is quite complex.",
+        exampleEs: "Este microservicio es bastante complejo.",
+        status: "Poca confianza"
+      },
+      {
+        id: 10,
+        term: "Committed",
+        pronunciation: "/kəˈmɪt.ɪd/ (komíted)",
+        translation: "Comprometido / Dedicado",
+        category: "Adjetivo",
+        level: "B1",
+        exampleEn: "I am very committed to my team and my goals.",
+        exampleEs: "Estoy muy comprometido con mi equipo y mis metas.",
+        status: "Poca confianza"
+      },
+      {
+        id: 11,
+        term: "Teammate",
+        pronunciation: "/ˈtiːm.meɪt/ (tímeit)",
+        translation: "Compañero de equipo (mejor que 'partner')",
+        category: "Trabajo / Tech",
+        level: "A2",
+        exampleEn: "I meet with my teammates to review the code.",
+        exampleEs: "Me reúno con mis compañeros de equipo para revisar el código.",
+        status: "Poca confianza"
+      },
+      {
+        id: 12,
+        term: "Feature",
+        pronunciation: "/ˈfiː.tʃɚ/ (fíchur)",
+        translation: "Funcionalidad (más natural que 'functionality')",
+        category: "Trabajo / Tech",
+        level: "B1",
+        exampleEn: "I build new features and fix bugs in Java.",
+        exampleEs: "Construyo nuevas funcionalidades y corrijo bugs en Java.",
+        status: "Poca confianza"
+      },
+      {
+        id: 13,
+        term: "Queue",
+        pronunciation: "/kjuː/ (kiú)",
+        translation: "Cola de mensajes / procesos (suena igual a la letra Q)",
+        category: "Trabajo / Tech",
+        level: "B1",
+        exampleEn: "The messages are waiting in the queue.",
+        exampleEs: "Los mensajes están esperando en la cola.",
+        status: "Poca confianza"
+      },
+      {
+        id: 14,
+        term: "Issue",
+        pronunciation: "/ˈɪʃ.uː/ (íshu)",
+        translation: "Problema / Incidente / Ticket",
+        category: "Trabajo / Tech",
+        level: "B1",
+        exampleEn: "We found an issue in the database connection.",
+        exampleEs: "Encontramos un problema en la conexión de base de datos.",
+        status: "Poca confianza"
+      },
+      {
+        id: 15,
+        term: "Through",
+        pronunciation: "/θruː/ (zrú)",
+        translation: "A través de / Por medio de",
+        category: "Conector",
+        level: "A2",
+        exampleEn: "Let's go through the logs to find the error.",
+        exampleEs: "Revisemos a través de los logs para encontrar el error.",
+        status: "Poca confianza"
+      },
+      {
+        id: 16,
+        term: "Thought",
+        pronunciation: "/θɔːt/ (zót)",
+        translation: "Pensé / Pensamiento (Pasado de think)",
+        category: "Verbo",
+        level: "A2",
+        exampleEn: "I thought the deployment was ready.",
+        exampleEs: "Pensé que el despliegue estaba listo.",
+        status: "Poca confianza"
+      },
+      {
+        id: 17,
+        term: "Though",
+        pronunciation: "/ðoʊ/ (dóu)",
+        translation: "Aunque / Sin embargo",
+        category: "Conector",
+        level: "B1",
+        exampleEn: "Even though it was hard, we fixed the bug.",
+        exampleEs: "Aunque fue difícil, arreglamos el bug.",
+        status: "Poca confianza"
+      },
+      {
+        id: 18,
+        term: "Knowledge",
+        pronunciation: "/ˈnɑː.lɪdʒ/ (nólech)",
+        translation: "Conocimiento (nunca lleva plural 's')",
+        category: "Sustantivo",
+        level: "B1",
+        exampleEn: "I want to become a better engineer with more knowledge.",
+        exampleEs: "Quiero ser un mejor ingeniero con más conocimiento.",
+        status: "Poca confianza"
+      },
+      {
+        id: 19,
+        term: "Surrounded by",
+        pronunciation: "/səˈraʊn.dɪd baɪ/ (saráunded bái)",
+        translation: "Rodeado de",
+        category: "Idiom / Expresión",
+        level: "B1",
+        exampleEn: "I love living in a green town surrounded by nature.",
+        exampleEs: "Me encanta vivir en un pueblo verde rodeado de naturaleza.",
+        status: "Nueva / Desconocida"
+      },
+      {
+        id: 20,
+        term: "Smoothly",
+        pronunciation: "/ˈsmuːð.li/ (smúzli)",
+        translation: "Sin problemas / Sin contratiempos / Fluidamente (de 'smooth' = suave, sin baches)",
+        category: "Conector",
+        level: "B1",
+        exampleEn: "Everything is running smoothly in production.",
+        exampleEs: "Todo está corriendo sin contratiempos en producción.",
+        status: "Nueva / Desconocida"
+      },
+      {
+        id: 21,
+        term: "Daily standup",
+        pronunciation: "/ˈdeɪ.li ˈstænd.ʌp/ (déili stándap)",
+        translation: "Reunión diaria corta de Scrum (15 min). Si prefieres algo más general, usa 'daily meeting'.",
+        category: "Trabajo / Tech",
+        level: "B1",
+        exampleEn: "In our daily standup, we share our progress and blockers.",
+        exampleEs: "En nuestra daily, compartimos nuestro avance y bloqueos.",
+        status: "Poca confianza"
+      },
+      {
+        id: 22,
+        term: "Run smoothly",
+        pronunciation: "/rʌn ˈsmuːð.li/ (rán smúzli)",
+        translation: "Funcionar sin problemas (alternativa sencilla: 'work well')",
+        category: "Idiom / Expresión",
+        level: "B1",
+        exampleEn: "I check the dashboards to make sure everything is running smoothly.",
+        exampleEs: "Reviso los tableros para asegurarme de que todo funcione sin problemas.",
+        status: "Nueva / Desconocida"
+      }
+    ];
+
+    const savedStatus = JSON.parse(localStorage.getItem('orus_vocab_conf') || '{}');
+    VOCABULARY_DATA.forEach(item => {
+      if (savedStatus[item.id]) item.status = savedStatus[item.id];
+    });
+
+    const voiceSelect = document.getElementById('voiceSelect');
+    let englishVoices = [];
+    let currentAudio = null;
+
+    function scoreVoice(v) {
+      let s = 0;
+      const name = v.name.toLowerCase();
+      const lang = (v.lang || '').toLowerCase();
+      if (lang.startsWith('en-us') || lang.startsWith('en_us')) s += 50;
+      else if (lang.startsWith('en-gb') || lang.startsWith('en_gb')) s += 40;
+      else if (lang.startsWith('en')) s += 25;
+      if (name.includes('natural') || name.includes('online')) s += 40;
+      if (name.includes('google us english') || name.includes('aria') || name.includes('jenny') || name.includes('guy')) s += 35;
+      if (name.includes('zira') || name.includes('david') || name.includes('mark')) s += 15;
+      return s;
+    }
+
+    function loadEnglishVoices() {
+      if (!('speechSynthesis' in window)) return;
+      const all = window.speechSynthesis.getVoices() || [];
+      englishVoices = all
+        .filter(v => /^en([-_]|$)/i.test(v.lang) || /english/i.test(v.name))
+        .sort((a, b) => scoreVoice(b) - scoreVoice(a));
+
+      const savedVoiceURI = localStorage.getItem('orus_en_voice_uri');
+      if (englishVoices.length > 0) {
+        voiceSelect.innerHTML = englishVoices.map((v, i) => `
+          <option value="${i}" ${v.voiceURI === savedVoiceURI ? 'selected' : ''}>
+            🎙️ ${v.name} (${v.lang})
+          </option>
+        `).join('');
+      } else if (all.length > 0) {
+        voiceSelect.innerHTML = `<option value="-1">⚠️ Sin voz EN local (Audio online)</option>`;
+      }
+    }
+
+    if ('speechSynthesis' in window) {
+      loadEnglishVoices();
+      window.speechSynthesis.onvoiceschanged = loadEnglishVoices;
+    }
+
+    voiceSelect.addEventListener('change', () => {
+      const v = englishVoices[parseInt(voiceSelect.value, 10)];
+      if (v) localStorage.setItem('orus_en_voice_uri', v.voiceURI);
+    });
+
+    function speakText(text) {
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+      }
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        if (englishVoices.length === 0) loadEnglishVoices();
+        const idx = parseInt(voiceSelect.value, 10);
+        const chosen = (!isNaN(idx) && englishVoices[idx]) ? englishVoices[idx] : englishVoices[0];
+
+        if (chosen) {
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.voice = chosen;
+          utterance.lang = chosen.lang || 'en-US';
+          utterance.rate = 0.88;
+          window.speechSynthesis.speak(utterance);
+          return;
+        }
+      }
+      const url = 'https://translate.googleapis.com/translate_tts?ie=UTF-8&client=tw-ob&tl=en&q=' + encodeURIComponent(text);
+      currentAudio = new Audio(url);
+      currentAudio.playbackRate = 0.9;
+      currentAudio.play().catch(() => {
+        alert('Tu navegador no tiene voces en inglés activas. Prueba abrir en Microsoft Edge o Google Chrome, o instala el paquete de voz "Inglés (Estados Unidos)" en Windows.');
+      });
+    }
+
+    function updateWordStatus(id, val) {
+      const item = VOCABULARY_DATA.find(x => x.id === id);
+      if (item) {
+        item.status = val;
+        savedStatus[id] = val;
+        localStorage.setItem('orus_vocab_conf', JSON.stringify(savedStatus));
+        renderStats();
+        renderTable();
+      }
+    }
+
+    const searchInput = document.getElementById('searchInput');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const statusFilter = document.getElementById('statusFilter');
+    const tbody = document.getElementById('vocabTableBody');
+    const statsContainer = document.getElementById('statsContainer');
+
+    const categories = [...new Set(VOCABULARY_DATA.map(i => i.category))];
+    categories.forEach(cat => {
+      const opt = document.createElement('option');
+      opt.value = cat;
+      opt.textContent = cat;
+      categoryFilter.appendChild(opt);
+    });
+
+    function renderStats() {
+      const total = VOCABULARY_DATA.length;
+      const unknown = VOCABULARY_DATA.filter(i => i.status === 'Nueva / Desconocida').length;
+      const practice = VOCABULARY_DATA.filter(i => i.status === 'Poca confianza').length;
+      const mastered = VOCABULARY_DATA.filter(i => i.status === 'Dominada').length;
+      statsContainer.innerHTML = `
+        <span class="stat-pill">Total: ${total}</span>
+        <span class="stat-pill" style="color:#f87171">🔴 Nuevas: ${unknown}</span>
+        <span class="stat-pill" style="color:#fbbf24">🟡 Poca confianza: ${practice}</span>
+        <span class="stat-pill" style="color:#34d399">🟢 Dominadas: ${mastered}</span>
+      `;
+    }
+
+    function getFilteredData() {
+      const q = searchInput.value.toLowerCase().trim();
+      const cat = categoryFilter.value;
+      const st = statusFilter.value;
+      return VOCABULARY_DATA.filter(item => {
+        const matchQ = !q ||
+          item.term.toLowerCase().includes(q) ||
+          item.translation.toLowerCase().includes(q) ||
+          item.exampleEn.toLowerCase().includes(q);
+        const matchCat = cat === 'ALL' || item.category === cat;
+        const matchSt = st === 'ALL' || item.status === st;
+        return matchQ && matchCat && matchSt;
+      });
+    }
+
+    function renderTable() {
+      const items = getFilteredData();
+      tbody.innerHTML = items.map(item => `
+        <tr>
+          <td>${item.id}</td>
+          <td>
+            <div class="term-cell">
+              <span>${item.term}</span>
+              <button class="speak-btn" onclick="speakText('${item.term.replace(/'/g, "\\'")}')" title="Escuchar término">🔊</button>
+            </div>
+          </td>
+          <td class="pron">${item.pronunciation}</td>
+          <td><strong>${item.translation}</strong></td>
+          <td>${item.category} <span style="color:#94a3b8">(${item.level})</span></td>
+          <td>
+            <div>${item.exampleEn} <button class="speak-btn" onclick="speakText('${item.exampleEn.replace(/'/g, "\\'")}')" title="Escuchar oración">🔊</button></div>
+            <div style="color:#94a3b8;font-size:0.84rem;">${item.exampleEs}</div>
+          </td>
+          <td>
+            <select onchange="updateWordStatus(${item.id}, this.value)" style="padding:0.3rem 0.5rem;font-size:0.8rem;">
+              <option value="Nueva / Desconocida" ${item.status === 'Nueva / Desconocida' ? 'selected' : ''}>🔴 Nueva / Desconocida</option>
+              <option value="Poca confianza" ${item.status === 'Poca confianza' ? 'selected' : ''}>🟡 Poca confianza</option>
+              <option value="Dominada" ${item.status === 'Dominada' ? 'selected' : ''}>🟢 Dominada</option>
+            </select>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    searchInput.addEventListener('input', renderTable);
+    categoryFilter.addEventListener('change', renderTable);
+    statusFilter.addEventListener('change', renderTable);
+
+    document.getElementById('copyReportBtn').addEventListener('click', () => {
+      const extra = document.getElementById('unknownWordsInput').value.trim();
+      const unknown = VOCABULARY_DATA.filter(i => i.status === 'Nueva / Desconocida').map(i => i.term);
+      const low = VOCABULARY_DATA.filter(i => i.status === 'Poca confianza').map(i => i.term);
+      const mastered = VOCABULARY_DATA.filter(i => i.status === 'Dominada').map(i => i.term);
+      let report = `Reporte de Vocabulario:\n- 🔴 Nuevas/Desconocidas: ${unknown.join(', ') || 'Ninguna'}\n- 🟡 Poca confianza: ${low.join(', ') || 'Ninguna'}\n- 🟢 Dominadas: ${mastered.join(', ') || 'Ninguna'}`;
+      if (extra) {
+        report += `\n- ➕ Palabras adicionales para explicar/agregar: ${extra}`;
+      }
+      navigator.clipboard.writeText(report);
+      alert('¡Reporte copiado! Pégalo en el chat con el agente.');
+    });
+
+    // Flashcard mode
+    let fcIndex = 0;
+    const flashcardPanel = document.getElementById('flashcardPanel');
+    const fcAnswer = document.getElementById('fcAnswer');
+
+    function loadFlashcard() {
+      const list = getFilteredData();
+      if (!list.length) return;
+      const item = list[fcIndex % list.length];
+      document.getElementById('fcWord').textContent = item.term;
+      document.getElementById('fcPron').textContent = `${item.pronunciation} • ${item.category} (${item.level})`;
+      document.getElementById('fcTranslation').textContent = item.translation;
+      document.getElementById('fcExampleEn').textContent = item.exampleEn;
+      document.getElementById('fcExampleEs').textContent = item.exampleEs;
+      fcAnswer.classList.remove('revealed');
+    }
+
+    document.getElementById('toggleFlashcardBtn').addEventListener('click', () => {
+      flashcardPanel.classList.toggle('active');
+      if (flashcardPanel.classList.contains('active')) loadFlashcard();
+    });
+    document.getElementById('fcRevealBtn').addEventListener('click', () => {
+      fcAnswer.classList.toggle('revealed');
+    });
+    document.getElementById('fcNextBtn').addEventListener('click', () => {
+      fcIndex++;
+      loadFlashcard();
+    });
+    document.getElementById('fcSpeakBtn').addEventListener('click', () => {
+      const list = getFilteredData();
+      if (list.length) speakText(list[fcIndex % list.length].term);
+    });
+
+    renderStats();
+    renderTable();
+  </script>
+</body>
+</html>

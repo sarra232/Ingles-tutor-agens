@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Orus English Hub — Ruta, Plan, Material y Vocabulario</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface-hover: #334155;
+      --border: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-dark: #0284c7;
+      --green: #34d399;
+      --amber: #fbbf24;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 2rem 1.25rem;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+    header {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1.25rem;
+    }
+    h1 { font-size: 1.8rem; margin-bottom: 0.35rem; }
+    .subtitle { color: var(--muted); font-size: 0.95rem; }
+    .badge-role {
+      display: inline-block;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-top: 0.65rem;
+    }
+    .btn {
+      display: inline-block;
+      background: var(--accent-dark);
+      color: #fff;
+      text-decoration: none;
+      padding: 0.75rem 1.25rem;
+      border-radius: 0.6rem;
+      font-weight: 600;
+      border: 1px solid var(--accent);
+      transition: background 0.15s;
+    }
+    .btn:hover { background: #0369a1; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0.85rem;
+      padding: 1.5rem;
+    }
+    .card h2 {
+      font-size: 1.18rem;
+      margin-bottom: 0.6rem;
+      color: var(--accent);
+    }
+    .card p { color: var(--muted); font-size: 0.92rem; margin-bottom: 1rem; }
+    .phase-list { list-style: none; }
+    .phase-list li {
+      padding: 0.65rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.92rem;
+    }
+    .phase-list li:last-child { border-bottom: none; }
+    .tag {
+      font-size: 0.75rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      font-weight: 600;
+      margin-left: 0.4rem;
+    }
+    .tag-active { background: rgba(251, 191, 36, 0.15); color: var(--amber); }
+    .tag-next { background: rgba(56, 189, 248, 0.15); color: var(--accent); }
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-top: 2rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>🇬🇧 Wilson's English Learning Hub</h1>
+        <p class="subtitle">Plataforma personal persistente en GitHub Pages — Acceso desde cualquier dispositivo y hora.</p>
+        <span class="badge-role">💻 Systems Engineer • Java Developer (Multinacional) • Meta: B1 Sólido → B2</span>
+      </div>
+      <div style="display:flex;gap:0.65rem;flex-wrap:wrap;">
+        <a class="btn" href="./perfil/index.html">👤 Mi Perfil y Presentación 🔊</a>
+        <a class="btn" href="./vocabulario/index.html">🔤 Vocabulario General 🔊</a>
+        <a class="btn" href="./vocabulario/verbos.html">⚡ Ventana de Verbos (Tiempos) 🔊</a>
+      </div>
+    </header>
+
+    <div class="grid">
+      <div class="card">
+        <h2>🗺️ Ruta de Aprendizaje Activa</h2>
+        <p>Progresión diseñada para nivelar vacíos de A1/A2/B1 y dominar la comunicación personal y técnica.</p>
+        <ul class="phase-list">
+          <li><strong>Fase 0:</strong> Examen Diagnóstico Integral <span class="tag tag-active">En curso</span></li>
+          <li><strong>Fase 1:</strong> Nivelación Express A1–A2 (Estructura, Presentación Personal y Entorno) <span class="tag tag-next">Próximo</span></li>
+          <li><strong>Fase 2:</strong> Consolidación B1 (Pasado, Experiencias, Ambiciones y Pronunciación)</li>
+          <li><strong>Fase 3:</strong> English for Java Devs (Daily Standup, Bugs, PRs y Arquitectura)</li>
+          <li><strong>Fase 4:</strong> Fluidez B2, Phrasal Verbs y Connected Speech</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2>⏱️ Rutina Diaria (1 a 2 Horas)</h2>
+        <p>Estructura diaria para entrenar lectura, oído, estructura mental y pronunciación:</p>
+        <ul class="phase-list">
+          <li><strong>1. Vocabulario & Audio (10–20 min):</strong> Repaso en Flashcards + repetición en voz alta (🔊).</li>
+          <li><strong>2. Material & Fórmulas (20–35 min):</strong> Lectura y copia de estructuras clave del día.</li>
+          <li><strong>3. Pronunciación en Voz Alta (10–20 min):</strong> Entrenamiento de sonidos y ritmo.</li>
+          <li><strong>4. Quiz / Juego Rápido (10–20 min):</strong> Validación de gramática y errores frecuentes.</li>
+          <li><strong>5. Charla / Roleplay (10–25 min):</strong> Conversación práctica con corrección natural.</li>
+        </ul>
+      </div>
+    </div>
+
+    <footer>
+      Sincronizado con el repositorio de estudio • Archivos fuente en <code>ruta-y-plan/</code>, <code>material/</code>, <code>vocabulario/</code> y <code>practica/</code>.
+    </footer>
+  </div>
+</body>
+</html>
