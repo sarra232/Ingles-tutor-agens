@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>⚡ Orus React Live Studio + Google AI Studio — Voz, Imágenes, Slides, Video & Juegos</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    body {
+      background-color: #090d16;
+      color: #f8fafc;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+    @keyframes pulseRing {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+      70% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+    .rec-pulse { animation: pulseRing 1.25s infinite; }
+    @keyframes waveAnim {
+      0%, 100% { transform: scaleY(0.35); }
+      50% { transform: scaleY(1.15); }
+    }
+    .wave-bar { animation: waveAnim 0.7s ease-in-out infinite; }
+  </style>
+</head>
+<body class="min-h-screen bg-[#090d16] text-slate-100 pb-16">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    function encodeWAV(samples, sampleRate) {
+      const buffer = new ArrayBuffer(44 + samples.length * 2);
+      const view = new DataView(buffer);
+      const writeStr = (off, s) => {
+        for (let i = 0; i < s.length; i++) view.setUint8(off + i, s.charCodeAt(i));
+      };
+      writeStr(0, 'RIFF');
+      view.setUint32(4, 36 + samples.length * 2, true);
+      writeStr(8, 'WAVE');
+      writeStr(12, 'fmt ');
+      view.setUint32(16, 16, true);
+      view.setUint16(20, 1, true);
+      view.setUint16(22, 1, true);
+      view.setUint32(24, sampleRate, true);
+      view.setUint32(28, sampleRate * 2, true);
+      view.setUint16(32, 2, true);
+      view.setUint16(34, 16, true);
+      writeStr(36, 'data');
+      view.setUint32(40, samples.length * 2, true);
+      let offset = 44;
+      for (let i = 0; i < samples.length; i++, offset += 2) {
+        let s = Math.max(-1, Math.min(1, samples[i]));
+        view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+      }
+      return new Blob([view], { type: 'audio/wav' });
+    }
+
+    function blobToBase64(blob) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const dataUrl = reader.result || '';
+          const b64 = dataUrl.includes(',') ? dataUrl.split(',')[1] : '';
+          resolve(b64);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    }
+
+    function normalizeWords(str) {
+      return (str || '')
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, '')
+        .replace(/\bfive\b/g, '5')
+        .split(/\s+/)
+        .filter(Boolean);
+    }
+
+    function App() {
+      const [liveState, setLiveState] = useState(null);
+      const [activeTab, setActiveTab] = useState('slides');
+      const [currentSlideIdx, setCurrentSlideIdx] = useState(0);
+
+      // Estado de Google AI Studio API Key
+      const [apiStatus, setApiStatus] = useState({ hasKey: false, maskedKey: '' });
+      const [showKeyModal, setShowKeyModal] = useState(false);
+      const [apiKeyInput, setApiKeyInput] = useState('');
+      const [aiLoading, setAiLoading] = useState(false);
+      const [lastFeedback, setLastFeedback] = useState(null);
+
+      // Voces en inglés del navegador
+      const [voices, setVoices] = useState([]);
+      const [selectedVoiceIdx, setSelectedVoiceIdx] = useState(0);
+      const [speechRate, setSpeechRate] = useState(0.92);
+      const [isSpeaking, setIsSpeaking] = useState(false);
+
+      // Grabadora de micrófono real (WAV) + Transcripción
+      const [isRecording, setIsRecording] = useState(false);
+      const [micLevel, setMicLevel] = useState(0);
+      const [micStatus, setMicStatus] = useState('🟢 Micrófono listo (Habla en inglés y Gemini escuchará tu voz real)');
+      const [recordedAudioUrl, setRecordedAudioUrl] = useState(null);
+      const [userTranscript, setUserTranscript] = useState('');
+      const [pronunciationEval, setPronunciationEval] = useState(null);
+      const [copyBanner, setCopyBanner] = useState(false);
+
+      // Juego Interactivo (Sentence Builder)
+      const [gameIdx, setGameIdx] = useState(0);
+      const [selectedBlocks, setSelectedBlocks] = useState([]);
+      const [availableBlocks, setAvailableBlocks] = useState([]);
+      const [gameStatus, setGameStatus] = useState(null);
+
+      // Referencias de audio
+      const audioCtxRef = useRef(null);
+      const streamRef = useRef(null);
+      const processorRef = useRef(null);
+      const chunksRef = useRef([]);
+      const sampleRateRef = useRef(44100);
+      const lastVersionRef = useRef(0);
+      const targetPhraseForEvalRef = useRef(null);
+
+      // 1. Cargar estado de API Key de Google AI Studio
+      useEffect(() => {
+        fetch('/api_status')
+          .then(r => r.json())
+          .then(d => setApiStatus(d))
+          .catch(() => {});
+      }, []);
+
+      const handleSaveApiKey = async () => {
+        if (!apiKeyInput.trim()) return;
+        const res = await fetch('/save_api_key', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ apiKey: apiKeyInput.trim() })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          setApiStatus({ hasKey: true, maskedKey: data.maskedKey });
+          setShowKeyModal(false);
+          setApiKeyInput('');
+        }
+      };
+
+      // 2. Voces Neurales Femeninas en Inglés (Servidas desde localhost:8090/tts, 100% compatibles con Brave)
+      const NEURAL_VOICES = [
+        { name: 'Jenny Neural (US Femenina)', lang: 'en-US', voiceURI: 'en-US-JennyNeural' },
+        { name: 'Aria Neural (US Femenina)', lang: 'en-US', voiceURI: 'en-US-AriaNeural' },
+        { name: 'Ava Neural (US Femenina)', lang: 'en-US', voiceURI: 'en-US-AvaMultilingualNeural' },
+        { name: 'Sonia Neural (UK Femenina)', lang: 'en-GB', voiceURI: 'en-GB-SoniaNeural' },
+        { name: 'Guy Neural (US Masculina)', lang: 'en-US', voiceURI: 'en-US-GuyNeural' }
+      ];
+
+      useEffect(() => {
+        setVoices(NEURAL_VOICES);
+        const savedURI = localStorage.getItem('orus_en_voice_uri');
+        if (savedURI) {
+          const idx = NEURAL_VOICES.findIndex(v => v.voiceURI === savedURI);
+          if (idx >= 0) setSelectedVoiceIdx(idx);
+        }
+      }, []);
+
+      const currentAudioRef = useRef(null);
+
+      const speak = (text, customRate) => {
+        if (!text) return;
+        const rate = customRate || speechRate || 0.92;
+
+        if (currentAudioRef.current) {
+          currentAudioRef.current.pause();
+          currentAudioRef.current = null;
+        }
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+        }
+
+        const chosenVoice = (NEURAL_VOICES[selectedVoiceIdx] || NEURAL_VOICES[0]).voiceURI;
+        const url = `/tts?voice=${encodeURIComponent(chosenVoice)}&text=${encodeURIComponent(text)}`;
+        const audio = new Audio(url);
+        audio.playbackRate = rate;
+        currentAudioRef.current = audio;
+        audio.onplay = () => setIsSpeaking(true);
+        audio.onended = () => setIsSpeaking(false);
+        audio.onerror = () => setIsSpeaking(false);
+        audio.play().catch(() => setIsSpeaking(false));
+      };
+
+      const stopSpeaking = () => {
+        if (currentAudioRef.current) {
+          currentAudioRef.current.pause();
+          currentAudioRef.current = null;
+        }
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+        setIsSpeaking(false);
+      };
+
+      // 3. Polling en tiempo real a /live_state
+      useEffect(() => {
+        const fetchState = async () => {
+          try {
+            const res = await fetch('/live_state?t=' + Date.now());
+            const data = await res.json();
+            if (data && data.version && data.version !== lastVersionRef.current) {
+              const isFirstLoad = lastVersionRef.current === 0;
+              lastVersionRef.current = data.version;
+              setLiveState(data);
+              if (data.lastFeedback) setLastFeedback(data.lastFeedback);
+              if (data.activeTab) setActiveTab(data.activeTab);
+              if (!isFirstLoad && data.tutorMessage && data.tutorMessage.autoSpeak) {
+                speak(data.tutorMessage.en);
+              }
+            }
+          } catch (e) {
+            if (lastVersionRef.current === 0) {
+              try {
+                const r2 = await fetch('./live_state.json');
+                const d2 = await r2.json();
+                lastVersionRef.current = d2.version || 1;
+                setLiveState(d2);
+              } catch (_) {}
+            }
+          }
+        };
+        fetchState();
+        const timer = setInterval(fetchState, 1800);
+        return () => clearInterval(timer);
+      }, [voices, selectedVoiceIdx]);
+
+      useEffect(() => {
+        if (!liveState || !Array.isArray(liveState.gameChallenges) || liveState.gameChallenges.length === 0) return;
+        const safeIdx = gameIdx < liveState.gameChallenges.length ? gameIdx : 0;
+        const ch = liveState.gameChallenges[safeIdx];
+        if (!ch) return;
+        const rawBlocks = Array.isArray(ch.scrambled)
+          ? ch.scrambled
+          : (Array.isArray(ch.scrambledBlocks)
+              ? ch.scrambledBlocks
+              : (ch.targetEn ? ch.targetEn.split(' ') : []));
+        const shuffled = [...rawBlocks].sort(() => Math.random() - 0.5);
+        setAvailableBlocks(shuffled.map((txt, i) => ({ id: i, text: String(txt) })));
+        setSelectedBlocks([]);
+        setGameStatus(null);
+      }, [gameIdx, liveState]);
+
+      // 4. Grabadora Real WAV + Envío a Google AI Studio (o evaluador de frase)
+      const startRecording = async (targetPhrase = null) => {
+        stopSpeaking();
+        targetPhraseForEvalRef.current = targetPhrase;
+        setPronunciationEval(null);
+        chunksRef.current = [];
+
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          streamRef.current = stream;
+          const ctx = new (window.AudioContext || window.webkitAudioContext)();
+          audioCtxRef.current = ctx;
+          sampleRateRef.current = ctx.sampleRate;
+
+          const source = ctx.createMediaStreamSource(stream);
+          const processor = ctx.createScriptProcessor(4096, 1, 1);
+          processorRef.current = processor;
+
+          processor.onaudioprocess = (e) => {
+            const input = e.inputBuffer.getChannelData(0);
+            chunksRef.current.push(new Float32Array(input));
+            let sum = 0;
+            for (let i = 0; i < input.length; i++) sum += input[i] * input[i];
+            const rms = Math.sqrt(sum / input.length);
+            setMicLevel(Math.min(100, Math.round(rms * 420)));
+          };
+
+          source.connect(processor);
+          processor.connect(ctx.destination);
+          setIsRecording(true);
+          setMicStatus('🔴 Grabando tu voz en vivo... Habla tranquilo y presiona Detener.');
+        } catch (err) {
+          setMicStatus('⚠️ Permiso de micrófono denegado: ' + err.message);
+        }
+      };
+
+      const stopRecording = async () => {
+        if (!isRecording) return;
+        setIsRecording(false);
+        setMicLevel(0);
+
+        if (processorRef.current) processorRef.current.disconnect();
+        if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop());
+        if (audioCtxRef.current) await audioCtxRef.current.close();
+
+        const chunks = chunksRef.current;
+        const totalLen = chunks.reduce((acc, c) => acc + c.length, 0);
+        const merged = new Float32Array(totalLen);
+        let offset = 0;
+        for (const c of chunks) {
+          merged.set(c, offset);
+          offset += c.length;
+        }
+
+        const wavBlob = encodeWAV(merged, sampleRateRef.current);
+        if (recordedAudioUrl) URL.revokeObjectURL(recordedAudioUrl);
+        const url = URL.createObjectURL(wavBlob);
+        setRecordedAudioUrl(url);
+
+        // Si es evaluación puntual de una frase de diapositiva/juego, usamos /transcribe rápido
+        if (targetPhraseForEvalRef.current) {
+          setMicStatus('⏳ Evaluando tu pronunciación exacta...');
+          try {
+            const res = await fetch('/transcribe', {
+              method: 'POST',
+              headers: { 'Content-Type': 'audio/wav' },
+              body: wavBlob
+            });
+            const data = await res.json();
+            if (data.ok && data.text) {
+              const spoken = data.text.trim();
+              setUserTranscript(prev => (prev ? prev + ' ' + spoken + '.' : spoken + '.'));
+              evaluatePronunciation(targetPhraseForEvalRef.current, spoken);
+              setMicStatus('✅ ¡Pronunciación evaluada!');
+            } else {
+              setMicStatus('⚠️ ' + (data.error || 'No se detectaron palabras claras.'));
+            }
+          } catch (e) {
+            setMicStatus('⚠️ Error al transcribir.');
+          }
+          return;
+        }
+
+        // Si tenemos Google AI Studio conectado, enviamos el audio directo a Gemini 2.5 Flash!
+        if (apiStatus.hasKey) {
+          setAiLoading(true);
+          setMicStatus('🤖 Google AI Studio está escuchando tu voz y preparando respuesta...');
+          try {
+            const b64 = await blobToBase64(wavBlob);
+            const res = await fetch('/ai_turn', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ audioWavBase64: b64, text: userTranscript.trim() })
+            });
+            const data = await res.json();
+            setAiLoading(false);
+            if (data.ok && data.ai) {
+              if (data.ai.heardText) setUserTranscript(data.ai.heardText);
+              if (data.ai.feedback) setLastFeedback(data.ai.feedback);
+              if (data.state) {
+                lastVersionRef.current = data.state.version;
+                setLiveState({ ...data.state, history: data.history || [] });
+                if (data.ai.newSlides) setCurrentSlideIdx(0);
+                if (data.ai.newGames) setGameIdx(0);
+                if (data.state.activeTab) setActiveTab(data.state.activeTab);
+              }
+              if (data.ai.tutorMessage && data.ai.tutorMessage.en) {
+                speak(data.ai.tutorMessage.en);
+              }
+              setMicStatus('✅ ¡Google AI Studio escuchó tu voz y actualizó la pizarra!');
+            } else {
+              setMicStatus('⚠️ ' + (data.error || 'Error en respuesta de IA'));
+            }
+          } catch (err) {
+            setAiLoading(false);
+            setMicStatus('⚠️ Error conectando con el servidor local.');
+          }
+        } else {
+          // Si no ha puesto la API Key todavía, transcribimos localmente a la caja
+          setMicStatus('⏳ Convirtiendo tu voz a texto en inglés...');
+          try {
+            const res = await fetch('/transcribe', {
+              method: 'POST',
+              headers: { 'Content-Type': 'audio/wav' },
+              body: wavBlob
+            });
+            const data = await res.json();
+            if (data.ok && data.text) {
+              const spoken = data.text.trim();
+              setUserTranscript(prev => (prev ? prev + ' ' + spoken + '.' : spoken + '.'));
+              setMicStatus('✅ Voz grabada y transcrita (Conecta tu Key de Google AI Studio arriba para respuesta automática).');
+            } else {
+              setMicStatus('⚠️ ' + (data.error || 'No se detectaron palabras claras.'));
+            }
+          } catch (err) {
+            setMicStatus('✅ Voz grabada lista para escuchar.');
+          }
+        }
+      };
+
+      const sendTextToGemini = async () => {
+        const txt = userTranscript.trim();
+        if (!txt) {
+          alert('Escribe o graba primero tu mensaje o lo que quieres pedirle al tutor (ej. "Crea diapositivas con imágenes sobre...").');
+          return;
+        }
+        if (!apiStatus.hasKey) {
+          setShowKeyModal(true);
+          return;
+        }
+        setAiLoading(true);
+        setMicStatus('🤖 Google AI Studio generando respuesta, imágenes y actividades...');
+        try {
+          const res = await fetch('/ai_turn', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: txt })
+          });
+          const data = await res.json();
+          setAiLoading(false);
+          if (data.ok && data.ai) {
+            if (data.ai.feedback) setLastFeedback(data.ai.feedback);
+            if (data.state) {
+              lastVersionRef.current = data.state.version;
+              setLiveState({ ...data.state, history: data.history || [] });
+              if (data.ai.newSlides) setCurrentSlideIdx(0);
+              if (data.ai.newGames) setGameIdx(0);
+              if (data.state.activeTab) setActiveTab(data.state.activeTab);
+            }
+            if (data.ai.tutorMessage && data.ai.tutorMessage.en) {
+              speak(data.ai.tutorMessage.en);
+            }
+            setUserTranscript('');
+            setMicStatus('✅ ¡Pizarra actualizada por Google AI Studio!');
+          } else {
+            setMicStatus('⚠️ ' + (data.error || 'Error al consultar Google AI Studio'));
+          }
+        } catch (err) {
+          setAiLoading(false);
+          setMicStatus('⚠️ Error de red.');
+        }
+      };
+
+      const evaluatePronunciation = (target, spoken) => {
+        const targetWords = target.split(/\s+/);
+        const spokenNorm = normalizeWords(spoken);
+        let hits = 0;
+        const comparison = targetWords.map(w => {
+          const clean = normalizeWords(w)[0] || '';
+          const ok = spokenNorm.includes(clean);
+          if (ok) hits++;
+          return { word: w, ok };
+        });
+        const score = Math.round((hits / targetWords.length) * 100);
+        setPronunciationEval({ spoken, score, comparison });
+      };
+
+      const sendToAgent = async () => {
+        const textToSend = userTranscript.trim() || selectedBlocks.map(b => b.text).join(' ');
+        if (!textToSend) {
+          alert('Primero habla por el micrófono, arma la frase o escribe tu respuesta en la caja.');
+          return;
+        }
+        const payload = `🎙️ [Enviado desde Orus React Live Studio]:\n${textToSend}`;
+        try {
+          await navigator.clipboard.writeText(payload);
+        } catch (_) {}
+        try {
+          await fetch('/student_reply', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: textToSend, tab: activeTab })
+          });
+        } catch (_) {}
+        setCopyBanner(true);
+        setTimeout(() => setCopyBanner(false), 6000);
+      };
+
+      // Funciones del juego de bloques
+      const addBlock = (block) => {
+        setAvailableBlocks(prev => prev.filter(b => b.id !== block.id));
+        setSelectedBlocks(prev => [...prev, block]);
+        speak(block.text, 1.0);
+      };
+
+      const removeBlock = (block) => {
+        setSelectedBlocks(prev => prev.filter(b => b.id !== block.id));
+        setAvailableBlocks(prev => [...prev, block]);
+      };
+
+      const checkGameAnswer = () => {
+        const games = liveState.gameChallenges || [];
+        const ch = games[gameIdx] || games[0];
+        if (!ch) return;
+        const target = ch.targetEn || (Array.isArray(ch.correctOrder) ? ch.correctOrder.join(' ') : '');
+        const built = selectedBlocks.map(b => b.text).join(' ');
+        if (normalizeWords(built).join(' ') === normalizeWords(target).join(' ')) {
+          setGameStatus({ ok: true, msg: '🎉 ¡Perfecto! Estructura 100% exacta. Ahora léela en voz alta con el micrófono.' });
+          speak(target, 0.95);
+          setUserTranscript(prev => (prev ? prev + '\n' + target : target));
+        } else {
+          setGameStatus({ ok: false, msg: '🔧 Casi, revisa el orden de los bloques (Subject + Verb + Object + Place + Time).' });
+        }
+      };
+
+      if (!liveState) {
+        return (
+          <div className="flex items-center justify-center min-h-screen text-sky-400 text-lg font-semibold">
+            ⚡ Cargando Orus React Live English Studio...
+          </div>
+        );
+      }
+
+      const slides = Array.isArray(liveState.slides) ? liveState.slides : [];
+      const currentSlide = slides[currentSlideIdx] || slides[0];
+      const gamesList = Array.isArray(liveState.gameChallenges) ? liveState.gameChallenges : [];
+      const currentGame = gamesList[gameIdx] || gamesList[0];
+      const videoLesson = liveState.videoLesson || {};
+
+      return (
+        <div className="max-w-7xl mx-auto px-4 pt-5">
+          {/* MODAL PARA PEGAR API KEY DE GOOGLE AI STUDIO */}
+          {showKeyModal && (
+            <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-slate-900 border border-sky-500/50 rounded-2xl max-w-lg w-full p-6 shadow-2xl">
+                <div className="flex justify-between items-center mb-3">
+                  <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                    🔑 Conectar Google AI Studio (`GEMINI_API_KEY`)
+                  </h2>
+                  <button onClick={() => setShowKeyModal(false)} className="text-slate-400 hover:text-white">✕</button>
+                </div>
+                <p className="text-xs text-slate-300 leading-relaxed mb-3">
+                  1. Abre <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer" className="text-sky-400 underline font-bold">aistudio.google.com/apikey</a> y haz clic en <strong>"Create API key"</strong> (100% gratuito).<br/>
+                  2. Pégala aquí abajo. Se guardará únicamente en tu archivo <code>.env</code> local (excluido de GitHub en <code>.gitignore</code>).
+                </p>
+                <input
+                  type="password"
+                  value={apiKeyInput}
+                  onChange={(e) => setApiKeyInput(e.target.value)}
+                  placeholder="AIzaSy..."
+                  className="w-full bg-slate-950 border border-slate-700 focus:border-sky-400 rounded-xl px-3.5 py-2.5 text-sm text-white outline-none mb-4"
+                />
+                <div className="flex justify-end gap-2">
+                  <button
+                    onClick={() => setShowKeyModal(false)}
+                    className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={handleSaveApiKey}
+                    className="px-5 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold shadow"
+                  >
+                    💾 Guardar y Activar IA en Vivo
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* BARRA SUPERIOR */}
+          <nav className="flex flex-wrap items-center justify-between gap-3 bg-slate-900/90 border border-slate-800 rounded-2xl px-5 py-3.5 mb-5 shadow-lg">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">⚡</span>
+              <div>
+                <h1 className="text-lg font-bold text-white leading-tight">
+                  Orus React Live English Studio
+                </h1>
+                <p className="text-xs text-slate-400">
+                  Impulsado por Google AI Studio • Voz Multimodal, Imágenes IA, Slides, Video y Juegos
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                onClick={() => setShowKeyModal(true)}
+                className={`text-xs font-bold px-3.5 py-2 rounded-xl border transition ${
+                  apiStatus.hasKey
+                    ? 'bg-emerald-950/60 border-emerald-500/50 text-emerald-300 hover:bg-emerald-900/50'
+                    : 'bg-amber-500/20 border-amber-400 text-amber-200 hover:bg-amber-500/30 animate-pulse'
+                }`}
+              >
+                {apiStatus.hasKey ? `🟢 Google AI Studio (${apiStatus.maskedKey})` : '🔑 Conectar Google AI Studio Key'}
+              </button>
+
+              <a href="../../index.html" className="text-xs font-semibold px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700">
+                🏠 Hub
+              </a>
+              <a href="../../perfil/index.html" className="text-xs font-semibold px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700">
+                👤 Perfil
+              </a>
+              <a href="../../vocabulario/index.html" className="text-xs font-semibold px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700">
+                🔤 Vocabulario
+              </a>
+              <a href="../../vocabulario/verbos.html" className="text-xs font-semibold px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700">
+                ⚡ Verbos
+              </a>
+
+              <select
+                value={selectedVoiceIdx}
+                onChange={(e) => {
+                  const i = parseInt(e.target.value, 10);
+                  setSelectedVoiceIdx(i);
+                  if (voices[i]) localStorage.setItem('orus_en_voice_uri', voices[i].voiceURI);
+                }}
+                className="text-xs bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-2 text-sky-300 max-w-[210px]"
+              >
+                {voices.map((v, i) => (
+                  <option key={i} value={i}>🎙️ {v.name} ({v.lang})</option>
+                ))}
+              </select>
+
+              <select
+                value={speechRate}
+                onChange={(e) => setSpeechRate(parseFloat(e.target.value))}
+                className="text-xs bg-slate-950 border border-slate-700 rounded-lg px-2 py-2 text-slate-200"
+              >
+                <option value="0.82">🐢 0.82x</option>
+                <option value="0.92">🚶 0.92x</option>
+                <option value="1.0">⚡ 1.0x</option>
+              </select>
+            </div>
+          </nav>
+
+          {/* BANNER DEL TUTOR EN VIVO */}
+          {liveState.tutorMessage && (
+            <div className="bg-gradient-to-r from-sky-950/80 via-slate-900 to-indigo-950/80 border border-sky-500/40 rounded-2xl p-4 mb-6 flex flex-wrap items-center justify-between gap-4 shadow-md">
+              <div className="flex items-start gap-3.5 max-w-3xl">
+                <div className="w-12 h-12 rounded-2xl bg-sky-500/20 border border-sky-400/40 flex items-center justify-center text-2xl shrink-0">
+                  {liveState.tutorMessage.avatar || '🧑‍💻'}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold uppercase tracking-wider text-sky-400">
+                      {liveState.tutorMessage.speaker}
+                    </span>
+                    {isSpeaking && (
+                      <span className="inline-flex items-end gap-0.5 h-3.5 px-1.5">
+                        <span className="w-1 h-3 bg-emerald-400 wave-bar"></span>
+                        <span className="w-1 h-2 bg-emerald-400 wave-bar" style={{animationDelay:'0.15s'}}></span>
+                        <span className="w-1 h-3.5 bg-emerald-400 wave-bar" style={{animationDelay:'0.3s'}}></span>
+                      </span>
+                    )}
+                    {aiLoading && (
+                      <span className="text-xs text-amber-300 font-bold animate-pulse">
+                        ⚡ Pensando y diseñando pizarra...
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-base font-medium text-white mt-0.5" lang="en" translate="no">
+                    "{liveState.tutorMessage.en}"
+                  </p>
+                  <p className="text-xs text-slate-400 mt-1">
+                    🇪🇸 {liveState.tutorMessage.es}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => speak(liveState.tutorMessage.en)}
+                  className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs shadow transition"
+                >
+                  🔊 Escuchar al Tutor
+                </button>
+                {isSpeaking && (
+                  <button
+                    onClick={stopSpeaking}
+                    className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-600"
+                  >
+                    ⏹️
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* PESTAÑAS INTERACTIVAS DE LA PIZARRA */}
+          <div className="flex flex-wrap gap-2.5 mb-5">
+            <button
+              onClick={() => setActiveTab('slides')}
+              className={`px-4 py-2.5 rounded-xl font-bold text-sm transition flex items-center gap-2 ${
+                activeTab === 'slides'
+                  ? 'bg-sky-600 text-white shadow-lg shadow-sky-600/25'
+                  : 'bg-slate-900 text-slate-300 border border-slate-800 hover:border-sky-500/50'
+              }`}
+            >
+              🖼️ 1. Diapositivas Visuales & Imágenes ({slides.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('game')}
+              className={`px-4 py-2.5 rounded-xl font-bold text-sm transition flex items-center gap-2 ${
+                activeTab === 'game'
+                  ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/25'
+                  : 'bg-slate-900 text-slate-300 border border-slate-800 hover:border-emerald-500/50'
+              }`}
+            >
+              🎮 2. Juego Interactivo (Reto 3 Frases)
+            </button>
+            <button
+              onClick={() => setActiveTab('video')}
+              className={`px-4 py-2.5 rounded-xl font-bold text-sm transition flex items-center gap-2 ${
+                activeTab === 'video'
+                  ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/25'
+                  : 'bg-slate-900 text-slate-300 border border-slate-800 hover:border-purple-500/50'
+              }`}
+            >
+              🎬 3. Escena Interactiva & Video Shadowing
+            </button>
+          </div>
+
+          {/* GRID PRINCIPAL */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* COLUMNA IZQUIERDA (7 cols): ESCENARIO DINÁMICO */}
+            <div className="lg:col-span-7">
+              {activeTab === 'slides' && currentSlide && (
+                <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+                  <div className="relative h-64 w-full bg-slate-950 overflow-hidden">
+                    <img
+                      src={currentSlide.image}
+                      alt={currentSlide.title}
+                      className="w-full h-full object-cover opacity-85 transition-transform duration-500 hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/35 to-transparent"></div>
+                    <div className="absolute top-4 left-4 right-4 flex justify-between items-center">
+                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-sky-500/25 border border-sky-400/50 text-sky-200 backdrop-blur-md">
+                        {currentSlide.badge}
+                      </span>
+                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-950/75 text-slate-300 border border-slate-700">
+                        Diapositiva {currentSlideIdx + 1} de {slides.length}
+                      </span>
+                    </div>
+                    <div className="absolute bottom-3 left-5 right-5">
+                      <p className="text-xs text-sky-300 font-medium">{currentSlide.imageCaption}</p>
+                      <h2 className="text-xl font-bold text-white">{currentSlide.title}</h2>
+                    </div>
+                  </div>
+
+                  <div className="p-5">
+                    <div className="bg-slate-950/90 border border-slate-800 rounded-xl p-4 mb-4">
+                      <div className="flex flex-wrap justify-between items-center gap-2 mb-2">
+                        <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
+                          🗣️ Frase Modelo en Inglés (Haz clic para escuchar o pronunciar)
+                        </span>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => speak(currentSlide.en, 0.92)}
+                            className="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold"
+                          >
+                            🔊 Escuchar Normal
+                          </button>
+                          <button
+                            onClick={() => speak(currentSlide.en, 0.78)}
+                            className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700"
+                          >
+                            🐢 Lento
+                          </button>
+                          <button
+                            onClick={() => isRecording ? stopRecording() : startRecording(currentSlide.en)}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold border ${
+                              isRecording
+                                ? 'bg-red-600 text-white border-red-400 rec-pulse'
+                                : 'bg-rose-500/15 text-rose-300 border-rose-500/40 hover:bg-rose-500/25'
+                            }`}
+                          >
+                            {isRecording ? '⏹️ Calificar mi Voz' : '🎤 Evaluar mi Pronunciación'}
+                          </button>
+                        </div>
+                      </div>
+                      <p className="text-lg font-semibold text-white leading-relaxed" lang="en" translate="no">
+                        "{currentSlide.en}"
+                      </p>
+                      <p className="text-xs font-mono text-sky-400 mt-1.5" translate="no">
+                        {currentSlide.ipa}
+                      </p>
+                      <p className="text-sm text-slate-400 mt-2 border-t border-slate-800/80 pt-2">
+                        🇪🇸 {currentSlide.es}
+                      </p>
+                    </div>
+
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2.5">
+                      ✨ Haz clic en cada bloque para escuchar su pronunciación exacta:
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+                      {(currentSlide.highlights || []).map((h, i) => (
+                        <button
+                          key={i}
+                          onClick={() => speak(h.term, 0.88)}
+                          className="text-left p-3.5 rounded-xl bg-slate-950/70 hover:bg-sky-950/40 border border-slate-800 hover:border-sky-500/50 transition group"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-sky-300 group-hover:text-sky-200 text-sm" lang="en" translate="no">
+                              {h.term}
+                            </span>
+                            <span className="text-xs">🔊</span>
+                          </div>
+                          <div className="text-xs text-amber-300 font-mono mt-0.5">/{h.pron}/</div>
+                          <div className="text-xs text-slate-400 mt-1">{h.meaning}</div>
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="flex items-center justify-between pt-3 border-t border-slate-800">
+                      <button
+                        onClick={() => setCurrentSlideIdx(i => Math.max(0, i - 1))}
+                        disabled={currentSlideIdx === 0}
+                        className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-xs font-bold"
+                      >
+                        ⬅️ Anterior
+                      </button>
+                      <div className="flex gap-1.5">
+                        {slides.map((_, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => setCurrentSlideIdx(idx)}
+                            className={`w-2.5 h-2.5 rounded-full ${
+                              idx === currentSlideIdx ? 'bg-sky-400 w-6' : 'bg-slate-700'
+                            } transition-all`}
+                          />
+                        ))}
+                      </div>
+                      <button
+                        onClick={() => {
+                          if (currentSlideIdx < slides.length - 1) {
+                            setCurrentSlideIdx(i => i + 1);
+                          } else {
+                            setActiveTab('game');
+                          }
+                        }}
+                        className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold"
+                      >
+                        {currentSlideIdx < slides.length - 1 ? 'Siguiente Diapositiva ➡️' : 'Ir al Juego Interactivo 🎮'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 2: JUEGO INTERACTIVO */}
+              {activeTab === 'game' && currentGame && (
+                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                  <div className="flex flex-wrap items-center justify-between gap-2 pb-4 mb-4 border-b border-slate-800">
+                    <div>
+                      <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
+                        🎮 Mini-Juego • Constructor de Oraciones & Voz
+                      </span>
+                      <h2 className="text-lg font-bold text-white">
+                        Reto {gameIdx + 1} de {liveState.gameChallenges.length}
+                      </h2>
+                    </div>
+                    <div className="flex gap-1.5">
+                      {liveState.gameChallenges.map((_, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setGameIdx(i)}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold ${
+                            i === gameIdx
+                              ? 'bg-emerald-600 text-white'
+                              : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+                          }`}
+                        >
+                          Frase #{i + 1}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 mb-4">
+                    <span className="text-xs text-slate-400 font-semibold block mb-1">
+                      🇪🇸 Arma en inglés (haciendo clic en los bloques o diciéndola con el micrófono):
+                    </span>
+                    <p className="text-base font-bold text-amber-300">
+                      {currentGame.promptEs}
+                    </p>
+                    <p className="text-xs text-slate-400 mt-2">
+                      💡 {currentGame.tip}
+                    </p>
+                  </div>
+
+                  <div className="min-h-[68px] bg-slate-950/90 border-2 border-dashed border-slate-700 rounded-xl p-3 mb-4 flex flex-wrap items-center gap-2">
+                    {selectedBlocks.length === 0 ? (
+                      <span className="text-xs text-slate-500">
+                        👆 Haz clic en los bloques de abajo en el orden correcto...
+                      </span>
+                    ) : (
+                      selectedBlocks.map(b => (
+                        <button
+                          key={b.id}
+                          onClick={() => removeBlock(b)}
+                          className="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-rose-600 text-white text-sm font-semibold shadow transition"
+                          lang="en"
+                          translate="no"
+                        >
+                          {b.text} ✕
+                        </button>
+                      ))
+                    )}
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 mb-5">
+                    {availableBlocks.map(b => (
+                      <button
+                        key={b.id}
+                        onClick={() => addBlock(b)}
+                        className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-sky-400 text-slate-100 text-sm font-semibold transition"
+                        lang="en"
+                        translate="no"
+                      >
+                        {b.text}
+                      </button>
+                    ))}
+                  </div>
+
+                  {gameStatus && (
+                    <div className={`p-3.5 rounded-xl mb-4 text-sm font-semibold border ${
+                      gameStatus.ok
+                        ? 'bg-emerald-950/60 border-emerald-500/50 text-emerald-300'
+                        : 'bg-amber-950/60 border-amber-500/50 text-amber-300'
+                    }`}>
+                      {gameStatus.msg}
+                    </div>
+                  )}
+
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-slate-800">
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        onClick={checkGameAnswer}
+                        className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow"
+                      >
+                        ✅ Verificar Orden
+                      </button>
+                      <button
+                        onClick={() => speak(currentGame.targetEn, 0.9)}
+                        className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-300 text-xs font-bold border border-slate-700"
+                      >
+                        🔊 Escuchar Solución
+                      </button>
+                      <button
+                        onClick={() => isRecording ? stopRecording() : startRecording(currentGame.targetEn)}
+                        className={`px-3.5 py-2 rounded-xl text-xs font-bold border ${
+                          isRecording
+                            ? 'bg-red-600 text-white border-red-400 rec-pulse'
+                            : 'bg-rose-500/15 text-rose-300 border-rose-500/40'
+                        }`}
+                      >
+                        {isRecording ? '⏹️ Detener y Evaluar' : '🎤 Decirla con mi Voz'}
+                      </button>
+                    </div>
+
+                    {gameIdx < liveState.gameChallenges.length - 1 && (
+                      <button
+                        onClick={() => setGameIdx(i => i + 1)}
+                        className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold"
+                      >
+                        Siguiente Frase ➡️
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 3: ESCENA INTERACTIVA */}
+              {activeTab === 'video' && (
+                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                  <div className="mb-4">
+                    <span className="text-xs font-bold uppercase tracking-wider text-purple-400">
+                      🎬 Diálogo Interactivo & Shadowing
+                    </span>
+                    <h2 className="text-lg font-bold text-white">{videoLesson.title}</h2>
+                    <p className="text-xs text-slate-400">{videoLesson.description}</p>
+                  </div>
+
+                  <div className="space-y-3 mb-4">
+                    {(videoLesson.script || []).map((line, idx) => {
+                      const isWilson = line.speaker.toLowerCase().includes('wilson');
+                      return (
+                        <div
+                          key={idx}
+                          className={`p-4 rounded-xl border ${
+                            isWilson
+                              ? 'bg-emerald-950/30 border-emerald-500/40'
+                              : 'bg-slate-950/80 border-slate-800'
+                          }`}
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
+                            <span className={`text-xs font-bold uppercase ${isWilson ? 'text-emerald-400' : 'text-sky-400'}`}>
+                              {isWilson ? '🟢 Tu Personaje: ' : '🧑‍💻 '} {line.speaker}
+                            </span>
+                            <div className="flex gap-1.5">
+                              <button
+                                onClick={() => speak(line.en, 0.92)}
+                                className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-sky-300"
+                              >
+                                🔊 Escuchar
+                              </button>
+                              <button
+                                onClick={() => isRecording ? stopRecording() : startRecording(line.en)}
+                                className="px-2.5 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-xs font-semibold text-rose-300 border border-rose-500/30"
+                              >
+                                {isRecording ? '⏹️ Calificar' : '🎤 Actuar esta línea'}
+                              </button>
+                            </div>
+                          </div>
+                          <p className="text-base font-semibold text-white" lang="en" translate="no">
+                            "{line.en}"
+                          </p>
+                          <p className="text-xs text-slate-400 mt-1">🇪🇸 {line.es}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* COLUMNA DERECHA (5 cols): CONSOLA MULTIMODAL GOOGLE AI STUDIO */}
+            <div className="lg:col-span-5 space-y-5">
+              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
+                  <div>
+                    <h3 className="text-base font-bold text-emerald-400">
+                      🎙️ Hablar o Pedir Contenido a Google AI Studio
+                    </h3>
+                    <p className="text-xs text-slate-400">{micStatus}</p>
+                  </div>
+                </div>
+
+                {/* Medidor de nivel de micrófono en vivo */}
+                <div className="w-full h-3 bg-slate-950 rounded-full overflow-hidden border border-slate-800 mb-3">
+                  <div
+                    className="h-full bg-gradient-to-r from-emerald-400 via-sky-400 to-indigo-400 transition-all duration-75"
+                    style={{ width: `${micLevel}%` }}
+                  />
+                </div>
+
+                {/* Botones de grabación */}
+                <div className="flex flex-wrap gap-2 mb-3">
+                  <button
+                    onClick={() => isRecording ? stopRecording() : startRecording(null)}
+                    disabled={aiLoading}
+                    className={`flex-1 py-2.5 px-4 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 ${
+                      isRecording
+                        ? 'bg-red-600 text-white rec-pulse'
+                        : 'bg-rose-600/20 hover:bg-rose-600/30 text-rose-200 border border-rose-500/50'
+                    }`}
+                  >
+                    {isRecording ? '⏹️ Detener y Enviar Voz a IA' : '🎤 Hablar por Micrófono'}
+                  </button>
+                  <button
+                    onClick={() => speak(userTranscript)}
+                    disabled={!userTranscript.trim()}
+                    className="px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-xs font-bold text-sky-300 border border-slate-700"
+                  >
+                    🔊 Leer
+                  </button>
+                  <button
+                    onClick={() => { setUserTranscript(''); setPronunciationEval(null); }}
+                    className="px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 border border-slate-700"
+                  >
+                    🗑️
+                  </button>
+                </div>
+
+                {/* Reproductor de la voz real grabada */}
+                {recordedAudioUrl && (
+                  <div className="bg-emerald-950/30 border border-emerald-500/30 rounded-xl p-2.5 mb-3 flex items-center gap-2">
+                    <span className="text-xs font-bold text-emerald-300 shrink-0">🎧 Tu propia voz:</span>
+                    <audio src={recordedAudioUrl} controls className="h-8 w-full" />
+                  </div>
+                )}
+
+                {/* Feedback Constructivo de Google AI Studio */}
+                {lastFeedback && lastFeedback.said && (
+                  <div className="bg-slate-950 border border-sky-500/30 rounded-xl p-3.5 mb-3 space-y-1.5">
+                    <div className="text-xs font-bold uppercase text-sky-400">
+                      💡 Feedback Instantáneo del Tutor AI:
+                    </div>
+                    <div className="text-xs text-slate-300">
+                      🗣️ <strong>Dijiste:</strong> <span className="text-amber-300">"{lastFeedback.said}"</span>
+                    </div>
+                    {lastFeedback.naturalEnglish && (
+                      <div className="text-xs text-slate-200">
+                        ✅ <strong>Versión Natural:</strong>{' '}
+                        <span className="text-emerald-400 font-semibold">"{lastFeedback.naturalEnglish}"</span>
+                        <button
+                          onClick={() => speak(lastFeedback.naturalEnglish)}
+                          className="ml-2 px-1.5 py-0.5 rounded bg-slate-800 text-[11px] text-sky-300"
+                        >
+                          🔊
+                        </button>
+                      </div>
+                    )}
+                    {lastFeedback.explanationEs && (
+                      <div className="text-xs text-slate-400">
+                        📌 {lastFeedback.explanationEs}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Evaluación de pronunciación palabra por palabra */}
+                {pronunciationEval && (
+                  <div className="bg-slate-950 border border-slate-800 rounded-xl p-3.5 mb-3">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-xs font-bold text-slate-300">
+                        🎯 Evaluación de Pronunciación:
+                      </span>
+                      <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                        pronunciationEval.score >= 80
+                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                          : 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                      }`}>
+                        {pronunciationEval.score}% precisión
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-400 mb-2">
+                      Escuchado: <em className="text-white">"{pronunciationEval.spoken}"</em>
+                    </p>
+                    <div className="flex flex-wrap gap-1.5 text-sm font-semibold" lang="en" translate="no">
+                      {pronunciationEval.comparison.map((item, i) => (
+                        <span
+                          key={i}
+                          className={item.ok ? 'text-emerald-400' : 'text-rose-400 underline decoration-wavy'}
+                        >
+                          {item.word}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Caja de mensaje / prompt para pedir imágenes, slides o juegos */}
+                <textarea
+                  value={userTranscript}
+                  onChange={(e) => setUserTranscript(e.target.value)}
+                  placeholder="Habla con el micrófono o escribe aquí en inglés/español (ej: 'Hazme 3 diapositivas con imágenes sobre arquitectura cloud en Java y un juego')."
+                  className="w-full h-24 bg-slate-950 border border-slate-800 focus:border-sky-500 rounded-xl p-3 text-sm text-white outline-none resize-y mb-2.5"
+                />
+
+                <div className="flex flex-col gap-2">
+                  <button
+                    onClick={sendTextToGemini}
+                    disabled={aiLoading}
+                    className="w-full py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 disabled:opacity-50 text-white font-bold text-sm shadow-lg shadow-sky-600/20 transition"
+                  >
+                    {aiLoading ? '⏳ Google AI Studio Generando...' : '✨ Enviar a Google AI Studio (Actualizar Pizarra y Hablar)'}
+                  </button>
+
+                  <button
+                    onClick={sendToAgent}
+                    className="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-slate-700 font-semibold text-xs transition"
+                  >
+                    📋 Copiar Respuesta al Chat de Antigravity
+                  </button>
+                </div>
+
+                {copyBanner && (
+                  <div className="mt-2.5 p-2.5 rounded-lg bg-emerald-950/80 border border-emerald-500/50 text-emerald-300 text-xs font-semibold text-center">
+                    ✅ ¡Listo! Ya quedó copiado. Pégalo en el chat con Ctrl + V.
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>

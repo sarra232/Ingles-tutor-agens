@@ -444,9 +444,9 @@
         translation: "Rodeado de",
         category: "Idiom / Expresión",
         level: "B1",
-        exampleEn: "I love living in a green town surrounded by nature.",
-        exampleEs: "Me encanta vivir en un pueblo verde rodeado de naturaleza.",
-        status: "Nueva / Desconocida"
+        exampleEn: "I live in a rural area surrounded by nature.",
+        exampleEs: "Vivo en una zona rural rodeado de naturaleza.",
+        status: "Dominada"
       },
       {
         id: 20,
@@ -480,10 +480,109 @@
         exampleEn: "I check the dashboards to make sure everything is running smoothly.",
         exampleEs: "Reviso los tableros para asegurarme de que todo funcione sin problemas.",
         status: "Nueva / Desconocida"
+      },
+      {
+        id: 23,
+        term: "Alive",
+        pronunciation: "/əˈlaɪv/ (a-LÁIV)",
+        translation: "Vivo / Lleno de vida (no confundir con 'live' = en directo)",
+        category: "Adjetivo",
+        level: "A2",
+        exampleEn: "This town is cold, but it feels so alive!",
+        exampleEs: "Este pueblo es frío, ¡pero se siente tan lleno de vida!",
+        status: "Dominada"
+      },
+      {
+        id: 24,
+        term: "As for... / Regarding...",
+        pronunciation: "/æz fɔːr/ (as for / ri-GÁR-ding)",
+        translation: "En cuanto a... / Respecto a...",
+        category: "Conector",
+        level: "B1",
+        exampleEn: "As for my hobbies, I am a very active person.",
+        exampleEs: "En cuanto a mis hobbies, soy una persona muy activa.",
+        status: "Dominada"
+      },
+      {
+        id: 25,
+        term: "Go out",
+        pronunciation: "/ɡoʊ aʊt/ (góu áut)",
+        translation: "Salir (de casa a pasear/divertirse; 'leave' es irse de un lugar)",
+        category: "Phrasal Verb",
+        level: "A2",
+        exampleEn: "On weekends, I prefer going out or hiking.",
+        exampleEs: "Los fines de semana, prefiero salir a pasear o hacer senderismo.",
+        status: "Poca confianza"
+      },
+      {
+        id: 26,
+        term: "Lower environments",
+        pronunciation: "/ˈloʊ.ɚ ɪnˈvaɪ.rən.mənts/ (LÓU-er en-VÁI-ron-ments)",
+        translation: "Ambientes bajos (Dev, QA, Staging)",
+        category: "Sustantivo Técnico",
+        level: "B1",
+        exampleEn: "The bug is only in the lower environments.",
+        exampleEs: "El bug solo está en los ambientes bajos.",
+        status: "Dominada"
+      },
+      {
+        id: 27,
+        term: "Overtime",
+        pronunciation: "/ˈoʊ.vɚ.taɪm/ (ÓU-ver-taim)",
+        translation: "Horas extras (no 'extra hours')",
+        category: "Sustantivo",
+        level: "B1",
+        exampleEn: "We fix the bug today and charge overtime.",
+        exampleEs: "Arreglamos el bug hoy y cobramos horas extras.",
+        status: "Poca confianza"
+      },
+      {
+        id: 28,
+        term: "First thing in the morning",
+        pronunciation: "/fɝːst θɪŋ ɪn ðə ˈmɔːr.nɪŋ/ (férst zing in de MÓR-ning)",
+        translation: "A primera hora de la mañana",
+        category: "Expresión",
+        level: "B1",
+        exampleEn: "We can work on it tomorrow first thing in the morning.",
+        exampleEs: "Podemos trabajar en ello mañana a primera hora de la mañana.",
+        status: "Dominada"
+      },
+      {
+        id: 29,
+        term: "Make a mistake",
+        pronunciation: "/meɪk ə mɪˈsteɪk/ (méik a mis-TÉIK)",
+        translation: "Cometer un error (siempre con 'make', nunca con 'do')",
+        category: "Collocation",
+        level: "A2",
+        exampleEn: "Yesterday I made a mistake in the query, so I fixed it.",
+        exampleEs: "Ayer cometí un error en la consulta, así que lo corregí.",
+        status: "Poca confianza"
+      },
+      {
+        id: 30,
+        term: "On mute",
+        pronunciation: "/ɑːn mjuːt/ (on miút)",
+        translation: "En silencio / Con el micrófono silenciado",
+        category: "Expresión / Reuniones",
+        level: "A2",
+        exampleEn: "Sorry, I was on mute! You told me that I was on mute.",
+        exampleEs: "¡Perdón, estaba en mute! Me dijiste que tenía el micrófono silenciado.",
+        status: "Poca confianza"
+      },
+      {
+        id: 31,
+        term: "Rural area",
+        pronunciation: "/ˈrʊr.əl ˈer.i.ə/ (RÚ-ral É-ri-a)",
+        translation: "Zona rural / campo",
+        category: "Sustantivo",
+        level: "B1",
+        exampleEn: "I live in a peaceful rural area near Medellín.",
+        exampleEs: "Vivo en una zona rural tranquila cerca de Medellín.",
+        status: "Dominada"
       }
     ];
 
-    const savedStatus = JSON.parse(localStorage.getItem('orus_vocab_conf') || '{}');
+    const savedStatus = JSON.parse(localStorage.getItem('orus_vocab_conf_v1_1') || '{}');
     VOCABULARY_DATA.forEach(item => {
       if (savedStatus[item.id]) item.status = savedStatus[item.id];
     });
@@ -567,7 +666,7 @@
       if (item) {
         item.status = val;
         savedStatus[id] = val;
-        localStorage.setItem('orus_vocab_conf', JSON.stringify(savedStatus));
+        localStorage.setItem('orus_vocab_conf_v1_1', JSON.stringify(savedStatus));
         renderStats();
         renderTable();
       }

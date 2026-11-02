@@ -1,0 +1,10 @@
+# Secretos locales (Google AI Studio API Key)
+.env
+*.env
+!.env.example
+
+# Archivos temporales de Python
+__pycache__/
+*.pyc
+practica/voz/chat_history.json
+practica/voz/student_inbox.json

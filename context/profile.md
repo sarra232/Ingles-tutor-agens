@@ -26,6 +26,10 @@
   - Traducción literal de preposiciones y estructuras del español (*enjoy of*, *finish to build*, *live a town*, *assist to*).
   - Pronunciación de terminaciones `-ed` (*worked, fixed, deployed*) y palabras clave (*schedule, queue, through/thought/though, issue, quiet*).
 
-## 3. Disponibilidad
+## 3. Disponibilidad y Estilo de Feedback Preferido
 - **Tiempo Diario**: 1 a 2 horas al día.
-- **Soporte Web**: Sincronizado con GitHub Pages.
+- **Soporte Web**: Sincronizado con GitHub Pages y Estudio React + Google AI Studio (`localhost:8090`).
+- **Estilo de Comunicación del Tutor (Regla Estricta)**:
+  - **Informal, concreto, directo y humano** (como un compañero de trabajo real, sin adulaciones ni felicitaciones exageradas).
+  - Si algo está bien: basta un *"Buen trabajo, sigamos con lo siguiente"* (*"Good job, let's move on to the next one"*).
+  - Si hay un error: señalarlo de forma directa y concreta, explicar brevemente qué mejorar y tenerlo en cuenta para reforzarlo en la práctica siguiente.

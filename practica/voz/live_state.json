@@ -1,0 +1,180 @@
+{
+  "version": 17934174708,
+  "activeTab": "slides",
+  "tutorMessage": {
+    "speaker": "Alex",
+    "avatar": "🧑‍💻",
+    "en": "Good job, that sounded very clear. Let's keep going.",
+    "es": "Buen trabajo, sonó muy claro. Sigamos.",
+    "autoSpeak": true
+  },
+  "slides": [
+    {
+      "id": "s1",
+      "badge": "Calentamiento 1/2 • Tus 3 Ajustes Clave",
+      "title": "Make a Mistake, Told Me & On Mute",
+      "image": "https://images.unsplash.com/photo-1587614382346-4ec70e388b28?auto=format&fit=crop&w=1000&q=80",
+      "imageCaption": "Remote meetings & fixing mistakes in code 🎙️💻",
+      "en": "Sorry, I was on mute! You told me that I was on mute. Yesterday I made a small mistake in the query, but I found it and fixed it quickly.",
+      "ipa": "/ˈsɑːr.i, aɪ wɑːz ɑːn mjuːt! juː toʊld miː ðæt aɪ wɑːz ɑːn mjuːt. ˈjes.tɚ.deɪ aɪ meɪd ə smɔːl mɪˈsteɪk ɪn ðə ˈkwɪr.i, bʌt aɪ faʊnd ɪt ænd fɪkst ɪt ˈkwɪk.li/",
+      "es": "¡Disculpa, estaba en mute! Me dijiste que estaba en mute. Ayer cometí un pequeño error en la consulta, pero lo encontré y lo arreglé rápido.",
+      "highlights": [
+        {
+          "term": "I was on mute",
+          "pron": "ái uás on miút",
+          "meaning": "Estaba con el micrófono silenciado"
+        },
+        {
+          "term": "You told me",
+          "pron": "iú tóuld mi",
+          "meaning": "Me dijiste (nunca 'you say me')"
+        },
+        {
+          "term": "I made a mistake",
+          "pron": "ái méid a mis-TÉIK",
+          "meaning": "Cometí un error (siempre con 'make/made', nunca 'do/did')"
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "badge": "Calentamiento 2/2 • Verbos Encadenados",
+      "title": "Prefer + to continue + Verb (-ing)",
+      "image": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1000&q=80",
+      "imageCaption": "Continuous practice: vocabulary, pronunciation, and Java architecture 🚀",
+      "en": "I prefer to continue practicing my pronunciation and vocabulary every day. Today, we decided to keep working on the new Java feature.",
+      "ipa": "/aɪ prɪˈfɝː tə kənˈtɪn.juː ˈpræk.tɪ.sɪŋ maɪ prəˌnʌn.siˈeɪ.ʃən ænd voʊˈkæb.jə.ler.i ˈev.ri deɪ. təˈdeɪ, wiː dɪˈsaɪ.dɪd tə kiːp ˈwɝː.kɪŋ ɑːn ðə nuː ˈdʒɑː.və ˈfiː.tʃɚ/",
+      "es": "Prefiero continuar practicando mi pronunciación y vocabulario todos los días. Hoy decidimos seguir trabajando en la nueva funcionalidad de Java.",
+      "highlights": [
+        {
+          "term": "prefer to continue practicing",
+          "pron": "pri-FÉR tu kon-TÍ-niu PRÁK-ti-sing",
+          "meaning": "Prefiero seguir practicando (to + verbo + -ing)"
+        },
+        {
+          "term": "decided to keep working",
+          "pron": "di-SÁI-did tu kíp UÉR-king",
+          "meaning": "Decidimos seguir trabajando (keep + -ing)"
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "badge": "Módulo 2.1 • Pasado Simple & Sonido -ed",
+      "title": "Tu Daily Standup: Qué Hiciste Ayer (Yesterday)",
+      "image": "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1000&q=80",
+      "imageCaption": "Explaining your yesterday's update clearly in the Daily Standup 👥",
+      "en": "Yesterday, first thing in the morning, I checked the dashboards and attended the daily standup. Then, I worked on different projects and helped my teammates with an issue that occurred in the lower environments.",
+      "ipa": "/ˈjes.tɚ.deɪ, fɝːst θɪŋ ɪn ðə ˈmɔːr.nɪŋ, aɪ tʃekt ðə ˈdæʃ.bɔːrdz ænd əˈten.dɪd ðə ˈdeɪ.li ˈstænd.ʌp. ðen, aɪ wɝːkt ɑːn ˈdɪf.ɚ.ənt ˈprɑː.dʒekts ænd helpt maɪ ˈtiːm.meɪts wɪð ən ˈɪʃ.uː ðæt əˈkɝːd ɪn ðə ˈloʊ.ɚ ɪnˈvaɪ.rən.mənts/",
+      "es": "Ayer, a primera hora de la mañana, revisé los tableros y asistí al daily standup. Luego, trabajé en diferentes proyectos y ayudé a mis compañeros con un problema que ocurrió en los ambientes bajos.",
+      "highlights": [
+        {
+          "term": "checked / worked / helped",
+          "pron": "chékt / uérkt / jélpt",
+          "meaning": "Grupo 1 (-ed suena como /t/ seca, sin pronunciar la 'e')"
+        },
+        {
+          "term": "occurred",
+          "pron": "o-KÉRD",
+          "meaning": "Grupo 2 (-ed suena como /d/ suave)"
+        },
+        {
+          "term": "attended",
+          "pron": "a-TÉN-did",
+          "meaning": "Grupo 3 (termina en 'd', sí agrega sílaba /ɪd/)"
+        }
+      ]
+    }
+  ],
+  "gameChallenges": [
+    {
+      "id": "g1",
+      "promptEs": "1. ¡Disculpa, estaba en mute! Me dijiste que estaba en mute.",
+      "targetEn": "Sorry, I was on mute! You told me that I was on mute.",
+      "scrambled": [
+        "Sorry,",
+        "I was",
+        "on mute!",
+        "You told me",
+        "that I was",
+        "on mute."
+      ],
+      "tip": "Recuerda: 'was on mute' y 'You told me' (sin 'to' y nunca 'say me')."
+    },
+    {
+      "id": "g2",
+      "promptEs": "2. Ayer cometí un error en la consulta, pero lo encontré y lo arreglé.",
+      "targetEn": "Yesterday I made a mistake in the query, but I found it and fixed it.",
+      "scrambled": [
+        "Yesterday",
+        "I made",
+        "a mistake",
+        "in the query,",
+        "but I found it",
+        "and fixed it."
+      ],
+      "tip": "Recuerda: 'made a mistake' (con make), 'found it' y 'fixed it' (/fɪkst ɪt/)."
+    },
+    {
+      "id": "g3",
+      "promptEs": "3. Prefiero continuar practicando mi pronunciación y vocabulario todos los días.",
+      "targetEn": "I prefer to continue practicing my pronunciation and vocabulary every day.",
+      "scrambled": [
+        "I prefer",
+        "to continue",
+        "practicing",
+        "my pronunciation",
+        "and vocabulary",
+        "every day."
+      ],
+      "tip": "Recuerda: 'prefer + to continue + practicing (-ing)'."
+    },
+    {
+      "id": "g4",
+      "promptEs": "4. Ayer trabajé en diferentes proyectos y ayudé a mis compañeros.",
+      "targetEn": "Yesterday I worked on different projects and helped my teammates.",
+      "scrambled": [
+        "Yesterday",
+        "I worked on",
+        "different projects",
+        "and helped",
+        "my teammates."
+      ],
+      "tip": "Recuerda pronunciar 'worked' (/wɝːkt/) y 'helped' (/helpt/) sin la 'e'."
+    }
+  ],
+  "videoLesson": {
+    "title": "🎬 Escena Interactiva: Daily Standup — Qué hiciste ayer",
+    "youtubeId": "M5QY2_8704o",
+    "description": "Práctica de tu actualización completa en el Daily Standup usando Pasado Simple y los 3 ajustes.",
+    "script": [
+      {
+        "speaker": "Alex (Scrum Master / Dev)",
+        "en": "Hey Wilson, I think you are on mute! We can't hear you.",
+        "es": "¡Hola Wilson, creo que estás en mute! No te escuchamos."
+      },
+      {
+        "speaker": "Wilson (Java Dev)",
+        "en": "Sorry, I was on mute! Thanks because you told me.",
+        "es": "¡Disculpa, estaba en mute! Gracias porque me dijiste."
+      },
+      {
+        "speaker": "Alex (Scrum Master / Dev)",
+        "en": "No problem! How did it go yesterday with the payment service?",
+        "es": "¡No hay problema! ¿Cómo te fue ayer con el servicio de pagos?"
+      },
+      {
+        "speaker": "Wilson (Java Dev)",
+        "en": "Yesterday I worked on the service and helped my teammates. Initially, I made a small mistake in the query, but we found it and fixed it in the lower environments.",
+        "es": "Ayer trabajé en el servicio y ayudé a mis compañeros. Al principio cometí un pequeño error en la consulta, pero lo encontramos y lo arreglamos en los ambientes bajos."
+      }
+    ]
+  },
+  "lastFeedback": {
+    "hasCorrection": false,
+    "said": "Sorry, I was on mute. You told me that I was on mute. Yesterday, I made a small mistake in the query, but I found it and fixed it.",
+    "naturalEnglish": "Sorry, I was on mute. You told me that I was on mute. Yesterday, I made a small mistake in the query, but I found it and fixed it.",
+    "explanationEs": "Muy bien dicho, todo correcto."
+  },
+  "lastScore": 92
+}

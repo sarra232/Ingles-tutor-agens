@@ -405,10 +405,94 @@
         exPast: "I learned a lot from the diagnostic.",
         exPerf: "I have learned new words today.",
         confidence: "Dominada"
+      },
+      {
+        id: 16,
+        es: "Hacer senderismo / caminar en montaña",
+        type: "Regular",
+        base: "hike", pronBase: "/haɪk/ - jáik",
+        third: "hikes", pronThird: "/haɪks/ - jáiks",
+        ing: "hiking", pronIng: "/ˈhaɪ.kɪŋ/ - jáiking",
+        past: "hiked", pronPast: "/haɪkt/ - jáikt",
+        participle: "hiked", pronPart: "/haɪkt/ - jáikt",
+        exPres: "I enjoy hiking in the mountains.",
+        exPast: "Last Sunday I hiked with my dogs.",
+        exPerf: "I have hiked in this rural area many times.",
+        confidence: "Dominada"
+      },
+      {
+        id: 17,
+        es: "Ayudar (sin 'to' antes de la persona: help my teammates)",
+        type: "Regular",
+        base: "help", pronBase: "/help/ - jélp",
+        third: "helps", pronThird: "/helps/ - jélps",
+        ing: "helping", pronIng: "/ˈhel.pɪŋ/ - jélping",
+        past: "helped", pronPast: "/helpt/ - jélpt",
+        participle: "helped", pronPart: "/helpt/ - jélpt",
+        exPres: "We help our teammates every day.",
+        exPast: "Yesterday I helped fix a bug.",
+        exPerf: "They have helped me a lot.",
+        confidence: "Dominada"
+      },
+      {
+        id: 18,
+        es: "Ocurrir / Suceder",
+        type: "Regular",
+        base: "occur", pronBase: "/əˈkɝː/ - o-KÉR",
+        third: "occurs", pronThird: "/əˈkɝːz/ - o-KÉRS",
+        ing: "occurring", pronIng: "/əˈkɝː.ɪŋ/ - o-KÉ-ring",
+        past: "occurred", pronPast: "/əˈkɝːd/ - o-KÉRD",
+        participle: "occurred", pronPart: "/əˈkɝːd/ - o-KÉRD",
+        exPres: "If an issue occurs, we check the logs.",
+        exPast: "The error occurred in the lower environments.",
+        exPerf: "This bug has occurred twice.",
+        confidence: "Dominada"
+      },
+      {
+        id: 19,
+        es: "Preferir (prefer to do / prefer doing)",
+        type: "Regular",
+        base: "prefer", pronBase: "/prɪˈfɝː/ - pri-FÉR",
+        third: "prefers", pronThird: "/prɪˈfɝːz/ - pri-FÉRS",
+        ing: "preferring", pronIng: "/prɪˈfɝː.ɪŋ/ - pri-FÉ-ring",
+        past: "preferred", pronPast: "/prɪˈfɝːd/ - pri-FÉRD",
+        participle: "preferred", pronPart: "/prɪˈfɝːd/ - pri-FÉRD",
+        exPres: "On weekends, I prefer going out or hiking.",
+        exPast: "We preferred to fix it in the morning.",
+        exPerf: "I have always preferred backend development.",
+        confidence: "Poca confianza"
+      },
+      {
+        id: 20,
+        es: "Hacer / Fabricar / Crear (make a mistake, make changes)",
+        type: "Irregular",
+        base: "make", pronBase: "/meɪk/ - méik",
+        third: "makes", pronThird: "/meɪks/ - méiks",
+        ing: "making", pronIng: "/ˈmeɪ.kɪŋ/ - méiking",
+        past: "made", pronPast: "/meɪd/ - méid",
+        participle: "made", pronPart: "/meɪd/ - méid",
+        exPres: "I make sure everything runs smoothly.",
+        exPast: "Yesterday I made a mistake in the query.",
+        exPerf: "We have made several improvements.",
+        confidence: "Poca confianza"
+      },
+      {
+        id: 21,
+        es: "Decirle / Contarle a alguien (tell me, tell the team — sin 'to')",
+        type: "Irregular",
+        base: "tell", pronBase: "/tel/ - tél",
+        third: "tells", pronThird: "/telz/ - téls",
+        ing: "telling", pronIng: "/ˈtel.ɪŋ/ - téling",
+        past: "told", pronPast: "/toʊld/ - tóuld",
+        participle: "told", pronPart: "/toʊld/ - tóuld",
+        exPres: "Please tell me if you see an error.",
+        exPast: "You told me that I was on mute.",
+        exPerf: "I have told the team about the update.",
+        confidence: "Poca confianza"
       }
     ];
 
-    const savedConf = JSON.parse(localStorage.getItem('orus_verb_conf') || '{}');
+    const savedConf = JSON.parse(localStorage.getItem('orus_verb_conf_v1_1') || '{}');
     VERBS_DATA.forEach(v => {
       if (savedConf[v.id]) v.confidence = savedConf[v.id];
     });
@@ -492,7 +576,7 @@
       if (verb) {
         verb.confidence = value;
         savedConf[id] = value;
-        localStorage.setItem('orus_verb_conf', JSON.stringify(savedConf));
+        localStorage.setItem('orus_verb_conf_v1_1', JSON.stringify(savedConf));
         renderVerbs();
       }
     }
